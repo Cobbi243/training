@@ -108,6 +108,44 @@ h2{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:1px;font-we
 .macro .mval{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);width:84px;text-align:right;flex-shrink:0}
 .infobox{background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--acc-2);border-radius:10px;padding:14px 16px;margin-top:18px;font-size:13.5px;color:#cdd1da;line-height:1.55}
 .infobox b{color:var(--acc-2)}
+/* timer */
+.timer{margin-top:16px;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:22px 18px;text-align:center}
+.timer .phase{font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:3px;color:var(--muted);margin-bottom:6px}
+.timer .clock{font-family:'Bebas Neue',sans-serif;font-size:84px;line-height:.9;letter-spacing:2px;transition:color .2s}
+.timer.run-warm .clock,.timer.run-warm .phase{color:var(--acc-2)}
+.timer.run-sprint{background:linear-gradient(135deg,#2a1410,var(--panel-2));border-color:var(--acc)}
+.timer.run-sprint .clock,.timer.run-sprint .phase{color:var(--acc)}
+.timer.run-walk .clock,.timer.run-walk .phase{color:var(--cardio)}
+.timer.run-cool .clock{color:var(--muted)}
+.timer .sub{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-top:4px}
+.timer .round{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:10px;letter-spacing:1px}
+.timer .controls{display:flex;gap:10px;margin-top:18px;justify-content:center}
+.tbtn{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1.5px;border:none;border-radius:11px;padding:13px 28px;cursor:pointer;transition:.15s}
+.tbtn.go{background:var(--acc);color:#fff}
+.tbtn.go:hover{background:#ff6b3d}
+.tbtn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.tbtn.ghost:hover{border-color:var(--muted);color:var(--ink)}
+.timer .bar{height:6px;background:var(--panel);border-radius:3px;overflow:hidden;margin-top:16px}
+.timer .barfill{height:100%;width:0;background:currentColor;transition:width 1s linear}
+/* burn cards */
+.burn{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:18px}
+.burncard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;text-align:center}
+.burncard .ic{font-size:22px;margin-bottom:6px}
+.burncard .b{font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--cardio);line-height:1}
+.burncard .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;font-family:'JetBrains Mono',monospace}
+.eatcalc{background:var(--panel);border:1px solid var(--acc);border-radius:var(--radius);padding:18px;margin-top:18px}
+.eatcalc h3{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;font-weight:400;margin-bottom:14px}
+.eatrow{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.eatrow:last-of-type{border-bottom:none}
+.eatrow .v{font-family:'JetBrains Mono',monospace;font-weight:700}
+.eatrow .v.plus{color:var(--acc-2)}
+.eatrow .v.minus{color:var(--acc)}
+.eatrow.total{margin-top:6px;padding-top:14px;border-top:2px solid var(--acc)}
+.eatrow.total .lbl{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px}
+.eatrow.total .v{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--acc)}
+.toggle-burn{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tgl{flex:1;min-width:100px;font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);padding:11px;border-radius:10px;cursor:pointer;transition:.15s;text-align:center}
+.tgl.on{border-color:var(--acc-2);color:var(--acc-2);background:#1a2010}
 nav{position:fixed;bottom:0;left:0;right:0;background:rgba(20,22,28,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 0 12px;z-index:50}
 nav a{color:var(--muted);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:1px;display:flex;flex-direction:column;align-items:center;gap:4px}
 nav a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
@@ -177,6 +215,18 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;font-fam
         <div class="iv"><div class="t">90"</div><div class="d">ходьба ×8</div></div>
         <div class="iv"><div class="t">3'</div><div class="d">заминка</div></div>
       </div>
+
+      <div class="timer" id="timer">
+        <div class="phase" id="tPhase">готовий?</div>
+        <div class="clock" id="tClock">20:00</div>
+        <div class="sub" id="tSub">натисни «старт» — таймер сам веде тебе по інтервалах</div>
+        <div class="bar"><div class="barfill" id="tBar"></div></div>
+        <div class="round" id="tRound"></div>
+        <div class="controls">
+          <button class="tbtn go" id="tStart">Старт</button>
+          <button class="tbtn ghost" id="tReset">Скинути</button>
+        </div>
+      </div>
       <div class="cardio-card" style="margin-top:14px;background:var(--panel-2)">
         <h3 style="font-size:20px">Альтернатива · спокійне кардіо 35–40 хв</h3>
         <p style="color:var(--muted);font-size:13px">Якщо втомлений: швидка ходьба під нахилом 6–8%, пульс 120–140. Менше навантаження на м'язи, теж добре палить жир.</p>
@@ -189,26 +239,51 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;font-fam
   <div class="wrap">
     <div class="eyebrow">харчування для схуднення</div>
     <h2>Скільки їсти</h2>
-    <p style="color:var(--muted);font-size:13.5px;margin-top:8px">Твоя норма підтримки — 2000 ккал. Для схуднення потрібен дефіцит. Ось орієнтири:</p>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:8px">Твоя норма підтримки — 2000 ккал. Для схуднення тримаємо дефіцит ~400 ккал, тобто базова ціль <b style="color:var(--acc-2)">1600 ккал/день</b>. Тренування спалюють калорії — тож у дні з навантаженням можеш з'їсти більше на стільки ж.</p>
+
+    <div class="eyebrow" style="margin-top:24px">скільки спалюєш</div>
+    <div class="burn">
+      <div class="burncard"><div class="ic">🏋️</div><div class="b">~250</div><div class="l">силове тренування</div></div>
+      <div class="burncard"><div class="ic">🏃</div><div class="b">~230</div><div class="l">HIIT-кардіо 20 хв</div></div>
+    </div>
+
+    <div class="eatcalc">
+      <h3>Скільки можна з'їсти сьогодні</h3>
+      <p style="color:var(--muted);font-size:12.5px;margin-bottom:14px">Познач, що робив сьогодні — порахую денну ціль:</p>
+      <div class="toggle-burn">
+        <button class="tgl" id="tglStrength" data-burn="250">🏋️ силове +250</button>
+        <button class="tgl" id="tglCardio" data-burn="230">🏃 кардіо +230</button>
+      </div>
+      <div style="margin-top:16px">
+        <div class="eatrow"><span class="lbl">Базова ціль (дефіцит)</span><span class="v">1600</span></div>
+        <div class="eatrow" id="rowStrength" style="display:none"><span class="lbl">+ силове тренування</span><span class="v plus">+250</span></div>
+        <div class="eatrow" id="rowCardio" style="display:none"><span class="lbl">+ HIIT-кардіо</span><span class="v plus">+230</span></div>
+        <div class="eatrow total"><span class="lbl">Можна з'їсти</span><span class="v" id="eatTotal">1600</span></div>
+      </div>
+    </div>
+
+    <div class="eyebrow" style="margin-top:24px">розподіл за замовчуванням</div>
     <div class="nutri">
       <div class="ncard train">
-        <span class="day">дні тренувань</span>
-        <div class="kcal">1700</div>
+        <span class="day">день з тренуванням</span>
+        <div class="kcal">~1850</div>
         <div style="font-size:13px;color:var(--ink)">ккал</div>
-        <div class="note">У силові дні їж трохи більше — м'язам потрібне відновлення. Більше білка та вуглеводів навколо тренування.</div>
+        <div class="note">1600 базових + ~250 спалених. Їж більше навколо тренування — більше білка й вуглеводів для відновлення.</div>
       </div>
       <div class="ncard rest">
-        <span class="day">дні відпочинку</span>
-        <div class="kcal">1500</div>
+        <span class="day">день відпочинку</span>
+        <div class="kcal">1600</div>
         <div style="font-size:13px;color:var(--ink)">ккал</div>
-        <div class="note">У дні без навантаження менша потреба в енергії. Тримай білок високим, зменши вуглеводи.</div>
+        <div class="note">Без навантаження — базова ціль. Тримай білок високим, трохи менше вуглеводів.</div>
       </div>
     </div>
     <div class="macros" id="macros"></div>
     <div class="infobox">
-      <b>Як це працює:</b> дефіцит ~300–500 ккал/день дає приблизно <b>0.3–0.5 кг</b> втрати на тиждень — це здоровий темп без втрати м'язів. Головне правило для схуднення — <b>багато білка</b> (зберігає м'язи) і <b>сумарний тижневий дефіцит</b>, а не ідеальна цифра щодня.
+      <b>Логіка проста:</b> щоб худнути, треба з'їдати менше, ніж витрачаєш. Базова ціль <b>1600 ккал</b> уже дає дефіцит ~400. Коли тренуєшся, ти витрачаєш ще більше — тому можеш додати спалене назад і все одно бути в дефіциті. Тобто <b>важко тренувався → можна поїсти більше</b>, і це нормально.
       <br><br>
-      Це загальні орієнтири. Точні цифри залежать від ваги, зросту й активності — для індивідуального плану варто проконсультуватися з лікарем або дієтологом.
+      Головне для схуднення — <b>багато білка</b> (~140 г, зберігає м'язи) і <b>сумарний тижневий дефіцит</b>, а не ідеальна цифра щодня. Цифри спалених калорій приблизні — реальні залежать від ваги й інтенсивності.
+      <br><br>
+      Це загальні орієнтири. Для індивідуального плану варто проконсультуватися з лікарем або дієтологом.
     </div>
   </div>
 </section>
@@ -397,6 +472,61 @@ function buildMacros(){
     `<div class="macro"><div class="mname">${m.name}</div><div class="mbar"><div class="mfill" style="width:${m.pct}%;background:${m.col}"></div></div><div class="mval">${m.val}</div></div>`
   ).join("");
 }
+
+/* ===== HIIT TIMER ===== */
+const PHASES=[{name:"розминка · ходьба",sec:300,cls:"run-warm",sub:"спокійний крок, розігрівайся"}];
+for(let i=1;i<=8;i++){
+  PHASES.push({name:`спринт ${i}/8`,sec:30,cls:"run-sprint",sub:"швидко, майже на максимум!"});
+  PHASES.push({name:`ходьба ${i}/8`,sec:90,cls:"run-walk",sub:"відновлюй дихання, повільний крок"});
+}
+PHASES.push({name:"заминка",sec:180,cls:"run-cool",sub:"спокійна ходьба, пульс заспокоюється"});
+
+let tIdx=0,tLeft=PHASES[0].sec,tRun=false,tInt=null;
+const timerEl=document.getElementById("timer");
+function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function beep(freq,dur){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=freq;o.type="square";g.gain.value=.15;o.start();setTimeout(()=>{o.stop();c.close()},dur)}catch(e){}}
+function renderTimer(){
+  const p=PHASES[tIdx];
+  document.getElementById("tPhase").textContent=p.name;
+  document.getElementById("tClock").textContent=fmt(tLeft);
+  document.getElementById("tSub").textContent=p.sub;
+  document.getElementById("tRound").textContent=`фаза ${tIdx+1} з ${PHASES.length}`;
+  document.getElementById("tBar").style.width=((p.sec-tLeft)/p.sec*100)+"%";
+  timerEl.className="timer "+p.cls;
+  document.getElementById("tStart").textContent=tRun?"Пауза":(tIdx===0&&tLeft===PHASES[0].sec?"Старт":"Далі");
+}
+function tick(){
+  tLeft--;
+  if(tLeft<=3&&tLeft>0)beep(660,120);
+  if(tLeft<0){
+    if(tIdx<PHASES.length-1){tIdx++;tLeft=PHASES[tIdx].sec;beep(PHASES[tIdx].cls==="run-sprint"?990:440,350)}
+    else{clearInterval(tInt);tRun=false;tLeft=0;document.getElementById("tPhase").textContent="готово! 💪";document.getElementById("tSub").textContent="кардіо завершено — відмінно!";beep(880,600);renderTimer();return}
+  }
+  renderTimer();
+}
+document.getElementById("tStart").onclick=()=>{
+  if(tRun){clearInterval(tInt);tRun=false}
+  else{tRun=true;tInt=setInterval(tick,1000)}
+  renderTimer();
+};
+document.getElementById("tReset").onclick=()=>{
+  clearInterval(tInt);tRun=false;tIdx=0;tLeft=PHASES[0].sec;renderTimer();
+};
+renderTimer();
+
+/* ===== EAT CALCULATOR ===== */
+const BASE=1600;
+function updateEat(){
+  let total=BASE,s=document.getElementById("tglStrength").classList.contains("on"),c=document.getElementById("tglCardio").classList.contains("on");
+  document.getElementById("rowStrength").style.display=s?"flex":"none";
+  document.getElementById("rowCardio").style.display=c?"flex":"none";
+  if(s)total+=250;if(c)total+=230;
+  document.getElementById("eatTotal").textContent=total;
+}
+["tglStrength","tglCardio"].forEach(id=>{
+  document.getElementById(id).onclick=function(){this.classList.toggle("on");updateEat()};
+});
+updateEat();
 
 /* ===== NAV ===== */
 const navLinks=[...document.querySelectorAll("nav a")];
