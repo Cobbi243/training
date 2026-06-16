@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>РЕЖИМ — мій тренувальний план</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+  :root{
+    --bg:#0e0f0d;--panel:#161814;--panel-2:#1d201a;--line:#2a2e25;
+    --ink:#eef0e8;--muted:#8e948a;--lime:#c4ff3d;--lime-dim:#9fd11f;
+    --burn:#ff5a36;--blue:#5ad7ff;--radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:'Archivo',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:92px}
+  .mono{font-family:'Space Mono',monospace}
+  header.hero{padding:34px 20px 26px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  header.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 100% 0%, rgba(196,255,61,.10), transparent 55%),repeating-linear-gradient(135deg, transparent 0 22px, rgba(255,255,255,.012) 22px 23px);pointer-events:none}
+  .eyebrow{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--lime-dim);font-weight:700;margin-bottom:10px}
+  h1.brand{font-weight:900;font-size:clamp(38px,11vw,68px);line-height:.92;letter-spacing:-.02em;text-transform:uppercase;position:relative}
+  h1.brand span{color:var(--lime)}
+  .subline{color:var(--muted);margin-top:12px;max-width:560px;font-size:15px;position:relative}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;position:relative}
+  .chip{font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted)}
+  .chip b{color:var(--ink)}
+  main{max-width:760px;margin:0 auto;padding:0 16px}
+  section{margin-top:30px;scroll-margin-top:16px}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;gap:12px}
+  .sec-head h2{font-size:13px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;display:flex;align-items:center;gap:10px}
+  .sec-head h2::before{content:"";width:18px;height:3px;background:var(--lime);display:inline-block;border-radius:2px}
+  .sec-head .hint{font-size:12px;color:var(--muted)}
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .day{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 4px;text-align:center;cursor:pointer;transition:.15s;position:relative}
+  .day:hover{border-color:var(--lime-dim)}
+  .day .dow{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .day .dnum{font-weight:800;font-size:18px;margin-top:2px}
+  .day.today{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime) inset}
+  .day.train .dnum{color:var(--lime)}
+  .day .dot{width:6px;height:6px;border-radius:50%;background:var(--lime);margin:5px auto 0;opacity:0}
+  .day.train .dot{opacity:1}
+  .day.done .dot{background:var(--blue)}
+  .day.rest .dnum{color:var(--muted)}
+  .day .check{position:absolute;top:3px;right:5px;font-size:10px;color:var(--blue);opacity:0}
+  .day.done .check{opacity:1}
+  .today-card{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .today-card .label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--lime-dim);font-weight:700}
+  .today-card h3{font-size:24px;font-weight:800;margin:4px 0 2px;letter-spacing:-.01em}
+  .today-card .meta{color:var(--muted);font-size:13px}
+  .today-card .focus{display:flex;gap:18px;margin-top:14px;flex-wrap:wrap}
+  .focus-item .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+  .focus-item .v{font-weight:700;font-size:16px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .tab{white-space:nowrap;padding:9px 15px;border-radius:999px;cursor:pointer;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-weight:700;font-size:13px;transition:.15s;flex-shrink:0}
+  .tab.active{background:var(--lime);color:#101208;border-color:var(--lime)}
+  .ex{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+  .ex-top{display:flex;align-items:center;gap:12px;padding:14px}
+  .ex-num{font-family:'Space Mono',monospace;font-size:13px;color:var(--lime-dim);font-weight:700;min-width:24px}
+  .ex-main{flex:1;min-width:0}
+  .ex-name{font-weight:700;font-size:15px}
+  .ex-sets{color:var(--muted);font-size:12.5px;margin-top:1px}
+  .ex-sets b{color:var(--ink)}
+  .ex-act{display:flex;align-items:center;gap:8px}
+  .ex-toggle{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);width:30px;height:30px;border-radius:9px;cursor:pointer;font-size:13px;display:grid;place-items:center;transition:.15s;font-weight:700}
+  .ex-toggle:hover{color:var(--lime);border-color:var(--lime-dim)}
+  .ex-check{width:26px;height:26px;border-radius:8px;border:1.5px solid var(--line);cursor:pointer;display:grid;place-items:center;color:transparent;font-size:14px;background:transparent;transition:.15s}
+  .ex-check.on{background:var(--lime);border-color:var(--lime);color:#101208}
+  .ex.done .ex-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--lime-dim)}
+  .ex-guide{border-top:1px solid var(--line);padding:0 14px;max-height:0;overflow:hidden;transition:max-height .3s ease}
+  .ex-guide.open{max-height:1200px}
+  .ex-guide-inner{padding:14px 0 16px}
+  .guide-tag{display:inline-block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--lime-dim);font-weight:700;margin-bottom:8px}
+  .guide-steps{counter-reset:s;list-style:none}
+  .guide-steps li{position:relative;padding:7px 0 7px 30px;font-size:13.5px;color:#d4d8cd;border-bottom:1px dashed var(--line)}
+  .guide-steps li:last-child{border-bottom:none}
+  .guide-steps li::before{counter-increment:s;content:counter(s,decimal-leading-zero);position:absolute;left:0;top:7px;font-family:'Space Mono',monospace;font-size:11px;color:var(--lime);font-weight:700}
+  .cues{margin-top:12px;display:grid;gap:6px}
+  .cue{display:flex;gap:9px;font-size:12.5px;align-items:flex-start}
+  .cue .badge{font-size:9px;font-weight:800;letter-spacing:.05em;padding:2px 6px;border-radius:5px;flex-shrink:0;margin-top:1px}
+  .cue.good .badge{background:rgba(196,255,61,.14);color:var(--lime)}
+  .cue.bad .badge{background:rgba(255,90,54,.14);color:var(--burn)}
+  .cue.musc .badge{background:rgba(90,215,255,.14);color:var(--blue)}
+  .cue span:last-child{color:#cdd2c6}
+  .progress-wrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
+  .progress-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px}
+  .bar{height:9px;background:var(--panel-2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--lime-dim),var(--lime));width:0;transition:width .4s}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+  .stat .n{font-family:'Space Mono',monospace;font-size:24px;font-weight:700;color:var(--lime)}
+  .stat .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px}
+  .cardio{background:linear-gradient(135deg,rgba(255,90,54,.10),var(--panel));border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;gap:14px;align-items:center}
+  .cardio .ic{font-size:26px}
+  .cardio h4{font-size:15px;font-weight:800}
+  .cardio p{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .timer-mod{position:fixed;inset:0;background:rgba(8,9,7,.92);backdrop-filter:blur(6px);display:none;place-items:center;z-index:60;padding:20px}
+  .timer-mod.show{display:grid}
+  .timer-box{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:30px;text-align:center;width:100%;max-width:300px}
+  .timer-box .tlabel{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .timer-box .tnum{font-family:'Space Mono',monospace;font-size:64px;font-weight:700;color:var(--lime);line-height:1;margin:10px 0}
+  .timer-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .tbtn{padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font-weight:700;font-size:13px;cursor:pointer}
+  .tbtn.primary{background:var(--lime);color:#101208;border-color:var(--lime)}
+  nav.bottom{position:fixed;left:0;right:0;bottom:0;background:rgba(14,15,13,.92);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;z-index:50}
+  nav.bottom a{flex:1;text-align:center;padding:11px 4px 13px;color:var(--muted);text-decoration:none;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+  nav.bottom a .ni{display:block;font-size:18px;margin-bottom:2px}
+  nav.bottom a.active{color:var(--lime)}
+  footer{text-align:center;color:var(--muted);font-size:11px;padding:24px 16px 8px;line-height:1.7}
+  .reset-btn{background:none;border:1px solid var(--line);color:var(--muted);font-size:11px;padding:6px 12px;border-radius:8px;cursor:pointer;margin-top:8px}
+  .disclaimer{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--muted);margin-top:14px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">Персональний протокол · схуднення</div>
+  <h1 class="brand">РЕ<span>ЖИМ</span></h1>
+  <p class="subline">3 тренування на тиждень · повне тіло з гантелями + кардіо на доріжці. Тисни на вправу, щоб побачити техніку.</p>
+  <div class="chips">
+    <span class="chip">🎯 Ціль: <b>сушка</b></span>
+    <span class="chip">📅 <b>3 дні</b>/тиждень</span>
+    <span class="chip">🏋️ Гантелі <b>5·10·15·20</b> кг</span>
+    <span class="chip">🏃 Бігова доріжка</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- WEEK -->
+  <section id="calendar">
+    <div class="sec-head">
+      <h2>Календар тижня</h2>
+      <span class="hint" id="weekHint"></span>
+    </div>
+    <div class="week" id="week"></div>
+    <div class="stat-grid">
+      <div class="stat"><div class="n" id="stStreak">0</div><div class="l">днів поспіль</div></div>
+      <div class="stat"><div class="n" id="stWeek">0/3</div><div class="l">цей тиждень</div></div>
+      <div class="stat"><div class="n" id="stTotal">0</div><div class="l">всього тренувань</div></div>
+    </div>
+  </section>
+
+  <!-- TODAY -->
+  <section id="today">
+    <div class="sec-head"><h2>Сьогодні</h2></div>
+    <div class="today-card">
+      <div class="label" id="tdLabel">День А</div>
+      <h3 id="tdTitle">Повне тіло · A</h3>
+      <div class="meta" id="tdMeta"></div>
+      <div class="focus">
+        <div class="focus-item"><div class="k">Фокус</div><div class="v" id="tdFocus">Ноги + спина</div></div>
+        <div class="focus-item"><div class="k">Час</div><div class="v" id="tdTime">~45 хв</div></div>
+        <div class="focus-item"><div class="k">Вправ</div><div class="v" id="tdCount">7</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAN -->
+  <section id="plan">
+    <div class="sec-head">
+      <h2>План тренувань</h2>
+      <span class="hint">↓ тисни на вправу</span>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="progress-wrap">
+      <div class="progress-row"><span>Прогрес тренування</span><span class="mono" id="progTxt">0%</span></div>
+      <div class="bar"><i id="progBar"></i></div>
+    </div>
+    <div id="exList" style="margin-top:14px"></div>
+
+    <div class="cardio" id="cardioBlock">
+      <div class="ic">🏃</div>
+      <div>
+        <h4 id="cardioTitle">Кардіо на доріжці</h4>
+        <p id="cardioDesc"></p>
+      </div>
+    </div>
+
+    <div class="disclaimer">⚠️ Я не лікар і не тренер. Це загальний орієнтовний план. Перед стартом, особливо при болях, травмах чи хворобах — порадься з лікарем. Болю в суглобах бути не повинно: якщо є — зупинись.</div>
+  </section>
+
+  <footer>
+    Прогрес зберігається у цьому пристрої автоматично.<br>
+    <button class="reset-btn" onclick="resetAll()">Скинути весь прогрес</button>
+  </footer>
+</main>
+
+<!-- TIMER -->
+<div class="timer-mod" id="timerMod">
+  <div class="timer-box">
+    <div class="tlabel">Відпочинок між підходами</div>
+    <div class="tnum" id="tNum">60</div>
+    <div class="timer-btns">
+      <button class="tbtn" onclick="addTime(15)">+15с</button>
+      <button class="tbtn primary" id="tToggle" onclick="toggleTimer()">Пауза</button>
+      <button class="tbtn" onclick="closeTimer()">Стоп</button>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom">
+  <a href="#calendar" class="active"><span class="ni">📅</span>Тиждень</a>
+  <a href="#today"><span class="ni">⚡</span>Сьогодні</a>
+  <a href="#plan"><span class="ni">📋</span>План</a>
+  <a href="#" onclick="openTimer(60);return false"><span class="ni">⏱</span>Таймер</a>
+</nav>
+
+<script>
+/* ============ ДАНІ ПЛАНУ ============ */
+const PLAN = {
+  A:{title:"Повне тіло · A",focus:"Ноги + спина",time:"~45 хв",
+    cardio:"Розминка 5 хв ходьба + після силової: 20 хв швидка ходьба під нахилом 6–8% або легкий біг. Темп — щоб міг говорити уривками.",
+    ex:[
+      {n:"Присідання-кубок з гантеллю",s:"4 × 12",w:"15–20 кг",
+        steps:["Тримай одну гантель вертикально біля грудей обома руками під верхній блін.","Ноги на ширині плечей, носки трохи назовні, спина пряма.","Вдих — опускайся вниз, ніби сідаєш на стілець, коліна йдуть у бік носків.","Стегна паралельно підлозі (або нижче, якщо комфортно).","Видих — потужно встань, відштовхуючись п'ятами."],
+        cues:[["good","Тримай","Спина рівна, груди вгору, погляд вперед"],["bad","Уникай","Коліна не завалюй всередину, п'яти не відривай"],["musc","М'язи","Квадрицепси, сідниці, кор"]]},
+      {n:"Румунська тяга з гантелями",s:"4 × 12",w:"15–20 кг",
+        steps:["Гантелі в руках перед стегнами, ноги на ширині тазу, легке згинання в колінах.","Тримаючи спину прямою, відводь таз назад і опускай гантелі вздовж ніг.","Відчуй розтягнення задньої поверхні стегна — це головне.","Опускай поки спина пряма (зазвичай до середини гомілки).","Видих — виштовхни таз вперед, повернись у вертикаль."],
+        cues:[["good","Тримай","Гантелі ковзають близько до ніг, спина нейтральна"],["bad","Уникай","Не округлюй поперек, не присідай — це не присід"],["musc","М'язи","Біцепс стегна, сідниці, поперек"]]},
+      {n:"Тяга гантелей в нахилі",s:"4 × 12",w:"10–15 кг",
+        steps:["Нахились вперед ~45°, спина пряма, гантелі висять у опущених руках.","Лікті веди вздовж тіла назад, тягни гантелі до пояса.","Зведи лопатки в верхній точці на секунду.","Повільно опусти вниз, контролюючи рух.","Не розгойдуйся корпусом."],
+        cues:[["good","Тримай","Лопатки зводь, тягни ліктями а не кистями"],["bad","Уникай","Не округлюй спину, не смикай ривками"],["musc","М'язи","Широчайші, середина спини, біцепс"]]},
+      {n:"Випади з гантелями",s:"3 × 10 на ногу",w:"10–15 кг",
+        steps:["Гантелі в опущених руках по боках.","Зроби крок вперед, опусти таз — обидва коліна ~90°.","Заднє коліно майже торкається підлоги, переднє над п'ятою.","Відштовхнись передньою ногою назад у старт.","Зроби всі повтори на одну ногу, потім на другу (або чергуй)."],
+        cues:[["good","Тримай","Корпус вертикально, вага на п'яті передньої ноги"],["bad","Уникай","Переднє коліно не виходить далеко за носок"],["musc","М'язи","Квадрицепс, сідниці, баланс"]]},
+      {n:"Жим гантелей лежачи (на підлозі)",s:"3 × 12",w:"10–15 кг",
+        steps:["Ляж на підлогу/лаву, гантелі над грудьми на прямих руках.","Опускай гантелі, поки лікті ледь торкнуться підлоги (~90°).","Пауза внизу.","Видих — вижми гантелі вгору, не стукай їх одна об одну.","Лікті під кутом ~45° до тіла, не розкидай широко."],
+        cues:[["good","Тримай","Лопатки зведені, рух підконтрольний"],["bad","Уникай","Не кидай гантелі вниз, не вигинай поперек"],["musc","М'язи","Груди, трицепс, передня дельта"]]},
+      {n:"Планка",s:"3 × 40 сек",w:"вага тіла",
+        steps:["Упор на передпліччя і носки, лікті під плечима.","Тіло — пряма лінія від голови до п'ят.","Напруж прес і сідниці, таз не провисає і не задирається.","Дихай рівно, тримай час.","Якщо легко — додай 10 сек."],
+        cues:[["good","Тримай","Пряма лінія, прес напружений"],["bad","Уникай","Таз не провисає вниз, шия нейтральна"],["musc","М'язи","Кор, прес, плечі"]]}
+    ]},
+  B:{title:"Повне тіло · B",focus:"Груди + плечі",time:"~45 хв",
+    cardio:"Інтервали: 1 хв швидко (біг/швидка ходьба) + 1.5 хв спокійно, повтори 6–8 разів. Або 20–25 хв рівномірного темпу.",
+    ex:[
+      {n:"Жим гантелей стоячи (над головою)",s:"4 × 10",w:"10–15 кг",
+        steps:["Гантелі на рівні плечей, долоні вперед, лікті зігнуті.","Стопи на ширині плечей, прес напружений.","Видих — вижми гантелі вгору до майже прямих рук.","Не зводь гантелі — вони йдуть по прямій вгору.","Повільно опусти назад до плечей."],
+        cues:[["good","Тримай","Прес і сідниці напружені, спина рівна"],["bad","Уникай","Не прогинай поперек, не штовхай ногами"],["musc","М'язи","Плечі (дельти), трицепс, верх грудей"]]},
+      {n:"Розведення гантелей в нахилі",s:"3 × 14",w:"5–10 кг",
+        steps:["Нахились вперед ~45°, гантелі під грудьми, лікті ледь зігнуті.","Розводь руки в сторони, зводячи лопатки.","Підіймай до рівня плечей, мізинці трохи вгору.","Пауза вгорі — відчуй задню дельту.","Повільно опусти."],
+        cues:[["good","Тримай","Рух у плечах, лікті фіксовані"],["bad","Уникай","Не тягни вагу спиною, не розгойдуйся"],["musc","М'язи","Задня дельта, верх спини"]]},
+      {n:"Жим гантелей на грудь (підлога)",s:"4 × 12",w:"10–15 кг",
+        steps:["Ляж, гантелі над грудьми на прямих руках.","Опускай до легкого торкання ліктями підлоги.","Видих — вижми вгору, зводячи груди.","Лікті ~45° до корпусу.","Контроль на опусканні 2 секунди."],
+        cues:[["good","Тримай","Лопатки зведені, груди вгору"],["bad","Уникай","Не розкидай лікті на 90°"],["musc","М'язи","Груди, трицепс, дельта"]]},
+      {n:"Бічні розведення (махи)",s:"3 × 15",w:"5–10 кг",
+        steps:["Гантелі по боках, лікті трохи зігнуті.","Підіймай руки в сторони до рівня плечей.","Веди ліктями, не кистями — ніби наливаєш воду з глечика.","Пауза вгорі.","Повільно опусти, не кидай."],
+        cues:[["good","Тримай","Плечі опущені, рух плавний"],["bad","Уникай","Не закидай вагу ривком вище плечей"],["musc","М'язи","Середня дельта (ширина плечей)"]]},
+      {n:"Французький жим (трицепс)",s:"3 × 12",w:"10–15 кг",
+        steps:["Одну гантель тримай обома руками за голову, лікті вгору.","Опускай гантель за голову, згинаючи лікті.","Лікті залишаються на місці, рухаються тільки передпліччя.","Видих — розгинай руки вгору.","Не розводь лікті в сторони."],
+        cues:[["good","Тримай","Лікті фіксовані й близько до голови"],["bad","Уникай","Не маши всією рукою, не спіши"],["musc","М'язи","Трицепс"]]},
+      {n:"Підйом ніг лежачи",s:"3 × 15",w:"вага тіла",
+        steps:["Ляж на спину, руки вздовж тіла або під попереком.","Прямі (або злегка зігнуті) ноги підіймай вгору до 90°.","Поперек притиснутий до підлоги.","Повільно опускай ноги, не торкаючись підлоги.","Видих на підйомі."],
+        cues:[["good","Тримай","Поперек притиснутий, рух за рахунок преса"],["bad","Уникай","Не відривай поперек, не кидай ноги"],["musc","М'язи","Нижній прес, кор"]]}
+    ]},
+  C:{title:"Повне тіло · C",focus:"Ноги + руки",time:"~45 хв",
+    cardio:"Фінальне кардіо: 25–30 хв стабільної ходьби під нахилом 8–10% або легкого бігу. Спалюємо максимум жиру в кінці.",
+    ex:[
+      {n:"Болгарські випади (нога на підвищенні)",s:"4 × 10 на ногу",w:"10–15 кг",
+        steps:["Носок задньої ноги постав на стілець/диван позаду.","Гантелі по боках, корпус трохи вперед.","Опускайся передньою ногою вниз, заднє коліно вниз.","Переднє стегно до паралелі з підлогою.","Виштовхнись передньою п'ятою вгору."],
+        cues:[["good","Тримай","Вага на передній нозі, корпус стабільний"],["bad","Уникай","Не штовхайся задньою ногою"],["musc","М'язи","Квадрицепс, сідниці, баланс"]]},
+      {n:"Станова на одній нозі",s:"3 × 10 на ногу",w:"10 кг",
+        steps:["Гантель в одній руці, стій на протилежній нозі.","Нахиляйся вперед, вільна нога йде назад як противага.","Спина пряма, гантель опускається до гомілки.","Відчуй розтяг задньої поверхні опорної ноги.","Повернись у вертикаль, стиснувши сідницю."],
+        cues:[["good","Тримай","Таз рівний, спина нейтральна"],["bad","Уникай","Не округлюй спину, не поспішай"],["musc","М'язи","Біцепс стегна, сідниці, баланс"]]},
+      {n:"Підйом гантелей на біцепс",s:"4 × 12",w:"10–15 кг",
+        steps:["Гантелі в опущених руках, долоні вперед.","Згинай лікті, підіймаючи гантелі до плечей.","Лікті притиснуті до боків, не рухаються.","Пауза вгорі, стисни біцепс.","Повільно опусти повністю вниз."],
+        cues:[["good","Тримай","Лікті нерухомі, рух тільки передпліччя"],["bad","Уникай","Не розгойдуйся корпусом, не кидай вниз"],["musc","М'язи","Біцепс"]]},
+      {n:"Розгинання на трицепс з-за голови",s:"3 × 12",w:"10 кг",
+        steps:["Одна гантель обома руками над головою.","Опускай за голову, згинаючи лікті.","Лікті дивляться вгору і вперед, не в сторони.","Розгинай руки до прямих.","Контроль на всьому русі."],
+        cues:[["good","Тримай","Лікті близько до голови й фіксовані"],["bad","Уникай","Не розводь лікті, не кидай вагу"],["musc","М'язи","Трицепс"]]},
+      {n:"Підйом на носки (ікри)",s:"4 × 20",w:"15–20 кг",
+        steps:["Гантелі по боках, стій рівно.","Підіймайся максимально на носки.","Пауза вгорі на секунду.","Повільно опускайся, відчуваючи розтяг ікр.","Можна стати носками на блін/брусок для амплітуди."],
+        cues:[["good","Тримай","Повна амплітуда, пауза вгорі"],["bad","Уникай","Не роби короткі ривки"],["musc","М'язи","Литкові м'язи"]]},
+      {n:"Скручування на прес",s:"3 × 20",w:"вага тіла",
+        steps:["Ляж на спину, коліна зігнуті, стопи на підлозі.","Руки за головою або на грудях.","Видих — підіймай лопатки від підлоги, скручуючись.","Тягнись грудьми вгору, не шиєю.","Повільно опускайся, не розслабляючи прес повністю."],
+        cues:[["good","Тримай","Підборіддя не притискай, тягнись пресом"],["bad","Уникай","Не тягни себе за шию руками"],["musc","М'язи","Прямий м'яз преса"]]}
+    ]}
+};
+const SCHEDULE = ["A","rest","B","rest","C","rest","rest"]; // Пн-Нд
+const DOW = ["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
+
+/* ============ СТАН / ЗБЕРЕЖЕННЯ ============ */
+const KEY="rezhym_v1";
+let state = load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{done:{},total:0}}catch(e){return{done:{},total:0}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+
+function todayIdx(){let d=new Date().getDay();return d===0?6:d-1;} // Пн=0
+function isoWeekKey(date){const d=new Date(date);return d.getFullYear()+"-W"+weekNum(d);}
+function weekNum(d){const t=new Date(d);t.setHours(0,0,0,0);t.setDate(t.getDate()+3-((t.getDay()+6)%7));const w1=new Date(t.getFullYear(),0,4);return 1+Math.round(((t-w1)/86400000-3+((w1.getDay()+6)%7))/7);}
+function dayKey(offset){const d=new Date();d.setDate(d.getDate()+offset);return d.toISOString().slice(0,10);}
+
+let currentTab = SCHEDULE[todayIdx()]==="rest" ? nextTrainTab() : SCHEDULE[todayIdx()];
+function nextTrainTab(){for(let i=0;i<7;i++){let t=SCHEDULE[(todayIdx()+i)%7];if(t!=="rest")return t;}return"A";}
+
+/* ============ КАЛЕНДАР ============ */
+function renderWeek(){
+  const week=document.getElementById('week');week.innerHTML='';
+  const ti=todayIdx();
+  const monday=new Date();monday.setDate(monday.getDate()-ti);
+  for(let i=0;i<7;i++){
+    const d=new Date(monday);d.setDate(monday.getDate()+i);
+    const iso=d.toISOString().slice(0,10);
+    const plan=SCHEDULE[i];
+    const done=isDayDone(iso,plan);
+    const el=document.createElement('div');
+    el.className='day '+(plan==="rest"?'rest':'train')+(i===ti?' today':'')+(done?' done':'');
+    el.innerHTML=`<div class="dow">${DOW[i]}</div><div class="dnum">${d.getDate()}</div><div class="dot"></div><div class="check">✓</div>`;
+    if(plan!=="rest"){el.onclick=()=>{currentTab=plan;renderTabs();renderEx();document.getElementById('plan').scrollIntoView();};}
+    week.appendChild(el);
+  }
+  const m=monday.toLocaleDateString('uk-UA',{day:'numeric',month:'short'});
+  const sun=new Date(monday);sun.setDate(monday.getDate()+6);
+  document.getElementById('weekHint').textContent=m+' – '+sun.toLocaleDateString('uk-UA',{day:'numeric',month:'short'});
+  renderStats();
+}
+function isDayDone(iso,plan){if(plan==="rest")return false;const d=state.done[iso];if(!d)return false;return d.length>=PLAN[plan].ex.length;}
+
+function renderStats(){
+  let total=state.total||0;
+  document.getElementById('stTotal').textContent=total;
+  // цей тиждень
+  const ti=todayIdx();const monday=new Date();monday.setDate(monday.getDate()-ti);
+  let wk=0;for(let i=0;i<7;i++){const d=new Date(monday);d.setDate(monday.getDate()+i);const iso=d.toISOString().slice(0,10);if(isDayDone(iso,SCHEDULE[i]))wk++;}
+  document.getElementById('stWeek').textContent=wk+'/3';
+  // стрік
+  let streak=0;for(let off=0;off<60;off++){const d=new Date();d.setDate(d.getDate()-off);const iso=d.toISOString().slice(0,10);const di=d.getDay()===0?6:d.getDay()-1;const plan=SCHEDULE[di];if(plan==="rest"){continue;}if(isDayDone(iso,plan)){streak++;}else if(off>0){break;}else{break;}}
+  document.getElementById('stStreak').textContent=streak;
+}
+
+/* ============ TODAY ============ */
+function renderToday(){
+  const ti=todayIdx();const plan=SCHEDULE[ti];
+  if(plan==="rest"){
+    document.getElementById('tdLabel').textContent="День відпочинку";
+    document.getElementById('tdTitle').textContent="Відновлення 🌙";
+    document.getElementById('tdMeta').textContent="М'язи ростуть саме у відпочинок. Прогулянка, вода, сон 7–8 год.";
+    document.getElementById('tdFocus').textContent="Відпочинок";
+    document.getElementById('tdTime').textContent="—";
+    document.getElementById('tdCount').textContent="—";
+  }else{
+    const p=PLAN[plan];
+    document.getElementById('tdLabel').textContent="День "+plan;
+    document.getElementById('tdTitle').textContent=p.title;
+    document.getElementById('tdMeta').textContent="Розминка 5 хв + силова + кардіо. Відпочинок між підходами 60–90 сек.";
+    document.getElementById('tdFocus').textContent=p.focus;
+    document.getElementById('tdTime').textContent=p.time;
+    document.getElementById('tdCount').textContent=p.ex.length;
+  }
+}
+
+/* ============ TABS + EXERCISES ============ */
+function renderTabs(){
+  const tabs=document.getElementById('tabs');tabs.innerHTML='';
+  Object.keys(PLAN).forEach(k=>{
+    const b=document.createElement('div');
+    b.className='tab'+(k===currentTab?' active':'');
+    b.textContent='День '+k+' · '+PLAN[k].focus;
+    b.onclick=()=>{currentTab=k;renderTabs();renderEx();};
+    tabs.appendChild(b);
+  });
+}
+function renderEx(){
+  const p=PLAN[currentTab];const list=document.getElementById('exList');list.innerHTML='';
+  const iso=dayKey(0);const todayPlan=SCHEDULE[todayIdx()];
+  const trackable=(currentTab===todayPlan);
+  const done=state.done[iso]||[];
+  p.ex.forEach((e,i)=>{
+    const isDone=trackable&&done.includes(i);
+    const card=document.createElement('div');
+    card.className='ex'+(isDone?' done':'');
+    card.innerHTML=`
+      <div class="ex-top">
+        <div class="ex-num">${String(i+1).padStart(2,'0')}</div>
+        <div class="ex-main">
+          <div class="ex-name">${e.n}</div>
+          <div class="ex-sets"><b>${e.s}</b> · ${e.w}</div>
+        </div>
+        <div class="ex-act">
+          <button class="ex-toggle" title="Техніка">i</button>
+          <button class="ex-check ${isDone?'on':''}" title="Виконано">✓</button>
+        </div>
+      </div>
+      <div class="ex-guide">
+        <div class="ex-guide-inner">
+          <span class="guide-tag">Як правильно робити</span>
+          <ol class="guide-steps">${e.steps.map(s=>`<li>${s}</li>`).join('')}</ol>
+          <div class="cues">${e.cues.map(c=>`<div class="cue ${c[0]}"><span class="badge">${c[1]}</span><span>${c[2]}</span></div>`).join('')}</div>
+        </div>
+      </div>`;
+    const guide=card.querySelector('.ex-guide');
+    card.querySelector('.ex-toggle').onclick=()=>{guide.classList.toggle('open');};
+    const chk=card.querySelector('.ex-check');
+    chk.onclick=()=>{
+      if(!trackable){openTimerHint();return;}
+      toggleDone(iso,i);renderEx();renderWeek();renderProgress();openTimer(75);
+    };
+    list.appendChild(card);
+  });
+  // cardio
+  document.getElementById('cardioTitle').textContent="Кардіо · День "+currentTab;
+  document.getElementById('cardioDesc').textContent=p.cardio;
+  renderProgress();
+}
+function toggleDone(iso,i){
+  if(!state.done[iso])state.done[iso]=[];
+  const arr=state.done[iso];const idx=arr.indexOf(i);
+  const plan=SCHEDULE[todayIdx()];const wasComplete=arr.length>=PLAN[plan].ex.length;
+  if(idx>=0)arr.splice(idx,1);else arr.push(i);
+  const nowComplete=arr.length>=PLAN[plan].ex.length;
+  if(nowComplete&&!wasComplete)state.total=(state.total||0)+1;
+  if(!nowComplete&&wasComplete)state.total=Math.max(0,(state.total||0)-1);
+  save();
+}
+function renderProgress(){
+  const iso=dayKey(0);const todayPlan=SCHEDULE[todayIdx()];
+  let pct=0;
+  if(currentTab===todayPlan){const done=(state.done[iso]||[]).length;pct=Math.round(done/PLAN[currentTab].ex.length*100);}
+  document.getElementById('progBar').style.width=pct+'%';
+  document.getElementById('progTxt').textContent=pct+'%';
+}
+function openTimerHint(){alert("Відмічати виконані вправи можна тільки в день, коли це тренування за розкладом 🙂 Зараз ти переглядаєш інший день.");}
+
+/* ============ TIMER ============ */
+let tInt=null,tLeft=60,tRunning=false;
+function openTimer(sec){tLeft=sec;tRunning=true;document.getElementById('timerMod').classList.add('show');document.getElementById('tToggle').textContent='Пауза';updTimer();clearInterval(tInt);tInt=setInterval(tick,1000);}
+function tick(){if(!tRunning)return;tLeft--;if(tLeft<=0){tLeft=0;updTimer();clearInterval(tInt);beep();setTimeout(closeTimer,800);return;}updTimer();}
+function updTimer(){document.getElementById('tNum').textContent=tLeft;}
+function toggleTimer(){tRunning=!tRunning;document.getElementById('tToggle').textContent=tRunning?'Пауза':'Старт';}
+function addTime(s){tLeft+=s;updTimer();}
+function closeTimer(){clearInterval(tInt);document.getElementById('timerMod').classList.remove('show');}
+function beep(){try{const a=new(window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.value=.15;o.start();setTimeout(()=>{o.stop();a.close();},300);}catch(e){}}
+
+/* ============ RESET ============ */
+function resetAll(){if(confirm("Скинути весь прогрес? Це не можна відмінити.")){state={done:{},total:0};save();renderWeek();renderEx();renderToday();}}
+
+/* ============ NAV ============ */
+document.querySelectorAll('nav.bottom a').forEach(a=>{
+  a.addEventListener('click',()=>{document.querySelectorAll('nav.bottom a').forEach(x=>x.classList.remove('active'));a.classList.add('active');});
+});
+
+/* ============ INIT ============ */
+renderWeek();renderToday();renderTabs();renderEx();
+</script>
+</body>
+</html>
