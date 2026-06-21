@@ -283,6 +283,19 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;font-fam
 .ss-nav button.next{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
 .ss-nav button.next.finish{background:var(--acc-2);border-color:var(--acc-2);color:#0e0f13}
 .ss-nav button:hover:not(:disabled){filter:brightness(1.08)}
+.streak-card{background:linear-gradient(135deg,rgba(255,87,34,.14),rgba(198,255,0,.06));border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-top:18px;display:flex;align-items:center;gap:16px}
+.streak-card .flame{font-size:42px;line-height:1;filter:grayscale(1);opacity:.4;transition:all .3s}
+.streak-card.active .flame{filter:none;opacity:1}
+.streak-card .st-main{flex:1}
+.streak-card .st-num{font-family:'Bebas Neue',sans-serif;font-size:46px;line-height:.9;color:var(--acc)}
+.streak-card.active .st-num{color:var(--acc-2)}
+.streak-card .st-lbl{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.streak-card .st-msg{font-size:12px;color:var(--ink);margin-top:6px;opacity:.85}
+.statgrid4{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.mini-stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-align:center}
+.mini-stat .mnum{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;color:var(--ink)}
+.mini-stat .mlbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;font-family:'JetBrains Mono',monospace}
 </style>
 </head>
 <body>
@@ -307,8 +320,20 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;font-fam
     <h2>Цей тиждень</h2>
     <div class="statgrid">
       <div class="stat"><div class="num" id="stDone">0</div><div class="lbl">силових</div></div>
-      <div class="stat"><div class="num">3+2</div><div class="lbl">сесій</div></div>
+      <div class="stat"><div class="num" id="stCardio">0</div><div class="lbl">кардіо</div></div>
       <div class="stat"><div class="num" id="stPct">0%</div><div class="lbl">тижня</div></div>
+    </div>
+    <div class="streak-card" id="streakCard">
+      <div class="flame">🔥</div>
+      <div class="st-main">
+        <div class="st-num" id="streakNum">0</div>
+        <div class="st-lbl">тижнів поспіль</div>
+        <div class="st-msg" id="streakMsg"></div>
+      </div>
+    </div>
+    <div class="mini-stats">
+      <div class="mini-stat"><div class="mnum" id="totalTrain">0</div><div class="mlbl">всього тренувань</div></div>
+      <div class="mini-stat"><div class="mnum" id="totalKg">—</div><div class="mlbl">скинуто, кг</div></div>
     </div>
   </div>
 </section>
@@ -777,7 +802,7 @@ function addWeight(){
   const ex=w.find(e=>e.d===t);
   if(ex)ex.v=Math.round(v*10)/10; else w.push({d:t,v:Math.round(v*10)/10});
   w.sort((a,b)=>a.d<b.d?-1:1);
-  save();inp.value="";buildWeight();
+  save();inp.value="";buildWeight();refreshStats();
 }
 function delWeight(d){const w=getWeights();const i=w.findIndex(e=>e.d===d);if(i>=0){w.splice(i,1);save();buildWeight();}}
 function buildWeight(){
@@ -944,12 +969,68 @@ function buildTabs(){
 }
 
 /* ===== STATS ===== */
+function weekKeyFor(d){const o=new Date(d.getFullYear(),0,1);const wk=Math.ceil((((d-o)/86400000)+o.getDay()+1)/7);return d.getFullYear()+"-w"+wk}
+function weekData(offset){
+  // offset 0 = this week, -1 = last week, ...
+  const d=new Date();d.setDate(d.getDate()+offset*7);
+  return state[weekKeyFor(d)]||null;
+}
+function weekStrengthCount(wd){if(!wd)return 0;return PLAN.filter(w=>wd[w.id]).length;}
+function computeStreak(){
+  // count consecutive past weeks (including a "current-or-last" anchor) with full plan (3 strength)
+  // Anchor: if this week already complete, start at 0; else allow last week to start the streak so an in-progress week doesn't break it.
+  const FULL=PLAN.length; // 3
+  let streak=0;
+  // find starting offset: 0 if this week full, else -1
+  let start = weekStrengthCount(weekData(0))>=FULL ? 0 : -1;
+  for(let off=start;off>-260;off--){
+    if(weekStrengthCount(weekData(off))>=FULL)streak++;
+    else break;
+  }
+  return streak;
+}
 function refreshStats(){
   const done=getDone();
   const strength=PLAN.filter(w=>done[w.id]).length;
-  let total=strength; SCHEDULE.forEach((s,i)=>{if(s.t==="cardio"&&done["cardio"+i])total++});
+  let cardio=0; SCHEDULE.forEach((s,i)=>{if(s.t==="cardio"&&done["cardio"+i])cardio++});
+  let total=strength+cardio;
   document.getElementById("stDone").textContent=strength;
+  const cEl=document.getElementById("stCardio");if(cEl)cEl.textContent=cardio;
   document.getElementById("stPct").textContent=Math.round(total/5*100)+"%";
+  // streak
+  const streak=computeStreak();
+  const card=document.getElementById("streakCard");
+  if(card){
+    document.getElementById("streakNum").textContent=streak;
+    card.classList.toggle("active",streak>0);
+    const msg=document.getElementById("streakMsg");
+    const thisCount=strength;
+    if(streak===0){
+      msg.textContent=thisCount>0?`Цього тижня вже ${thisCount}/3 — добий план, щоб запалити стрік!`:"Виконай 3 силові цього тижня, щоб почати серію.";
+    }else if(streak===1){
+      msg.textContent="Перший тиждень у серії. Так тримати!";
+    }else{
+      msg.textContent=`${streak} тижні${streak<5?"":"в"} поспіль з повним планом. Вогонь!`;
+    }
+  }
+  // totals across all weeks
+  let allTrain=0;
+  Object.keys(state).forEach(k=>{
+    if(!/^\d{4}-w\d+$/.test(k))return;
+    const wd=state[k];
+    PLAN.forEach(w=>{if(wd[w.id])allTrain++;});
+    for(let i=0;i<7;i++){if(wd["cardio"+i])allTrain++;}
+  });
+  const tt=document.getElementById("totalTrain");if(tt)tt.textContent=allTrain;
+  // kg lost from weight log
+  const tk=document.getElementById("totalKg");
+  if(tk){
+    const w=(state.weights||[]);
+    if(w.length>=2){
+      const diff=Math.round((w[0].v-w[w.length-1].v)*10)/10;
+      tk.textContent=diff>0?diff.toFixed(1):diff<0?diff.toFixed(1):"0";
+    }else tk.textContent="—";
+  }
   if(document.getElementById("wbDays"))buildWeekBalance();
 }
 
