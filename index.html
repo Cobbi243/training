@@ -226,6 +226,63 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;font-fam
 .wt-entry .wdel:hover{color:var(--acc)}
 .wt-delta{font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:8px}
 .wt-delta.down{color:var(--acc-2)}.wt-delta.up{color:var(--acc)}
+.wkbal{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-top:24px}
+.wkbal h3{font-size:17px;margin-bottom:4px}
+.wkbal .wb-sub{color:var(--muted);font-size:12.5px;margin-bottom:16px}
+.wb-days{display:flex;flex-direction:column;gap:8px}
+.wb-day{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center}
+.wb-day .wb-name{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.5px;color:var(--muted)}
+.wb-day.istoday .wb-name{color:var(--acc)}
+.wb-day .wb-name small{display:block;font-size:9px;letter-spacing:0;color:var(--cardio);text-transform:uppercase;margin-top:1px}
+.wb-day .wb-name small.s{color:var(--acc-2)}
+.wb-day input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;padding:9px 10px;text-align:center;-moz-appearance:textfield}
+.wb-day input::-webkit-outer-spin-button,.wb-day input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.wb-day input::placeholder{color:var(--muted);opacity:.45}
+.wb-day input:focus{outline:none;border-color:var(--acc-2)}
+.wb-bal{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;min-width:58px;text-align:right}
+.wb-bal.def{color:var(--acc-2)}.wb-bal.sur{color:var(--acc)}.wb-bal.none{color:var(--muted);font-weight:400}
+.wb-summary{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wb-box{text-align:center}
+.wb-box .big{font-family:'Bebas Neue',sans-serif;font-size:38px;line-height:1}
+.wb-box .big.def{color:var(--acc-2)}.wb-box .big.sur{color:var(--acc)}.wb-box .big.none{color:var(--ink)}
+.wb-box .cap{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.wb-note{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5}
+.wb-note b{color:var(--ink)}
+.start-session{display:block;width:100%;margin:0 0 18px;background:linear-gradient(135deg,var(--acc),#ff7a45);border:none;border-radius:var(--radius);color:#fff;font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;padding:16px;cursor:pointer;box-shadow:0 6px 20px rgba(255,87,34,.25)}
+.start-session:hover{filter:brightness(1.05)}
+.start-session small{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;opacity:.85;margin-top:2px;font-weight:400}
+.session{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column}
+.session.show{display:flex}
+.ss-top{padding:14px 18px 12px;border-bottom:1px solid var(--line);background:var(--panel)}
+.ss-toprow{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ss-day{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--acc)}
+.ss-close{background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;padding:0 4px}
+.ss-close:hover{color:var(--ink)}
+.ss-progress{display:flex;gap:5px}
+.ss-seg{flex:1;height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.ss-seg.done{background:var(--acc-2)}
+.ss-seg.cur{background:var(--acc)}
+.ss-body{flex:1;overflow-y:auto;padding:20px 18px 24px;max-width:760px;margin:0 auto;width:100%}
+.ss-count{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.ss-name{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1.05;letter-spacing:.5px;margin-bottom:4px}
+.ss-target{font-size:14px;color:var(--acc-2);font-weight:600;margin-bottom:16px}
+.ss-target span{color:var(--muted);font-weight:400}
+.ss-img{width:100%;border-radius:var(--radius);overflow:hidden;border:1px solid var(--line);margin-bottom:8px;background:var(--panel)}
+.ss-img img{width:100%;display:block}
+.ss-phase-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.ss-phase-row .ss-img{margin-bottom:0}
+.ss-fallback{height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.ss-fallback svg{height:110px;width:auto;opacity:.5}
+.ss-steps{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:18px}
+.ss-steps .ss-h{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--acc-2);margin-bottom:8px}
+.ss-steps ol{margin:0;padding-left:20px;font-size:13.5px;color:var(--ink);line-height:1.6}
+.ss-nav{padding:14px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--panel);display:flex;gap:10px;max-width:760px;margin:0 auto;width:100%}
+.ss-nav button{flex:1;border-radius:12px;padding:15px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--ink)}
+.ss-nav button.prev{flex:0 0 90px}
+.ss-nav button.prev:disabled{opacity:.35;cursor:default}
+.ss-nav button.next{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700}
+.ss-nav button.next.finish{background:var(--acc-2);border-color:var(--acc-2);color:#0e0f13}
+.ss-nav button:hover:not(:disabled){filter:brightness(1.08)}
 </style>
 </head>
 <body>
@@ -355,6 +412,17 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;font-fam
       </div>
     </div>
 
+    <div class="wkbal">
+      <h3>Тижневий баланс калорій</h3>
+      <div class="wb-sub">Вводь з'їдене за день. Спалене на тренуваннях додається саме — відмічай тренування в розкладі. Норма підтримки 2000 ккал.</div>
+      <div class="wb-days" id="wbDays"></div>
+      <div class="wb-summary">
+        <div class="wb-box"><div class="big none" id="wbTotal">0</div><div class="cap">тижневий баланс, ккал</div></div>
+        <div class="wb-box"><div class="big none" id="wbKg">0.0</div><div class="cap" id="wbKgCap">прогноз ваги</div></div>
+      </div>
+      <div class="wb-note" id="wbNote"></div>
+    </div>
+
     <div class="eyebrow" style="margin-top:24px">розподіл за замовчуванням</div>
     <div class="nutri">
       <div class="ncard train">
@@ -397,6 +465,21 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;font-fam
   <a href="#weight"><svg viewBox="0 0 24 24"><path d="M12 4a4 4 0 014 4H8a4 4 0 014-4zM5 8h14l1.5 12a1 1 0 01-1 1.1H4.5a1 1 0 01-1-1.1L5 8z"/></svg>Вага</a>
   <a href="#food"><svg viewBox="0 0 24 24"><path d="M5 3v7m0 0a3 3 0 003 3v8M5 10a3 3 0 01-3-3V3m17 0c-1.5 0-3 1.5-3 4s1.5 3 3 3m0-7v18"/></svg>Їжа</a>
 </nav>
+
+<div class="session" id="session">
+  <div class="ss-top">
+    <div class="ss-toprow">
+      <div class="ss-day" id="ssDay">Тренування</div>
+      <button class="ss-close" id="ssClose" aria-label="Закрити">✕</button>
+    </div>
+    <div class="ss-progress" id="ssProgress"></div>
+  </div>
+  <div class="ss-body" id="ssBody"></div>
+  <div class="ss-nav">
+    <button class="prev" id="ssPrev">◀</button>
+    <button class="next" id="ssNext">Далі ▶</button>
+  </div>
+</div>
 
 <script>
 /* ===== EXERCISE ICONS (inline SVG) ===== */
@@ -608,6 +691,80 @@ function startRest(box,el){
 }
 function stopRest(box){if(_restTick){clearInterval(_restTick);_restTick=null;}box.classList.remove("show");box._left=null;if(_activeRest===box)_activeRest=null;}
 
+/* ===== WORKOUT SESSION (guided) ===== */
+let _ss={dayId:null,idx:0,ex:[]};
+function startSession(dayId){
+  const w=PLAN.find(p=>p.id===dayId);if(!w)return;
+  _ss={dayId,idx:0,ex:w.ex,day:w.day,title:w.title};
+  document.getElementById("ssDay").textContent=w.day+" — "+w.title;
+  document.getElementById("session").classList.add("show");
+  document.body.style.overflow="hidden";
+  renderSession();
+}
+function closeSession(){
+  const ses=document.getElementById("session");
+  const rb=ses.querySelector(".rest-timer");if(rb)stopRest(rb);
+  ses.classList.remove("show");document.body.style.overflow="";
+  buildTabs();refreshStats();
+}
+function renderSession(){
+  const e=_ss.ex[_ss.idx],i=_ss.idx,n=_ss.ex.length;
+  // progress segments
+  document.getElementById("ssProgress").innerHTML=_ss.ex.map((_,k)=>
+    `<div class="ss-seg ${k<i?"done":k===i?"cur":""}"></div>`).join("");
+  // target reps from meta
+  const tgt=e.meta.match(/(\d+×\d+\S*)/);
+  const rest=e.meta.replace(/\d+×\d+\S*/,"").replace(/^\s*·\s*/,"").trim();
+  const pics=e.img&&PICS[e.img];
+  const imgBlock=pics?
+    `<div class="ss-phase-row">
+       <div class="ss-img"><img src="${pics.a}" alt="нижнє"></div>
+       <div class="ss-img"><img src="${pics.b}" alt="верхнє"></div>
+     </div>`:
+    `<div class="ss-fallback">${I[e.ic]||""}</div>`;
+  const body=document.getElementById("ssBody");
+  body.scrollTop=0;
+  body.innerHTML=`
+    <div class="ss-count">Вправа ${i+1} / ${n}</div>
+    <div class="ss-name">${e.n}</div>
+    <div class="ss-target">${tgt?tgt[1]:e.meta}${rest?` <span>· ${rest}</span>`:""}</div>
+    ${imgBlock}
+    ${trackerHTML(_ss.dayId,i,e.meta)}
+    <div class="ss-steps">
+      <div class="ss-h">Техніка</div>
+      <ol>${e.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+    </div>`;
+  bindTracker(body);
+  // nav buttons
+  const prev=document.getElementById("ssPrev"),next=document.getElementById("ssNext");
+  prev.disabled=i===0;
+  if(i===n-1){next.textContent="Завершити ✓";next.classList.add("finish");}
+  else{next.textContent="Далі ▶";next.classList.remove("finish");}
+}
+function ssGo(dir){
+  const ses=document.getElementById("session");
+  const rb=ses.querySelector(".rest-timer");if(rb)stopRest(rb);
+  const n=_ss.ex.length;
+  if(dir>0&&_ss.idx===n-1){
+    // finish: mark workout done
+    const d=getDone();d[_ss.dayId]=true;save();
+    closeSession();
+    window.scrollTo({top:document.getElementById("cal").offsetTop-10,behavior:"smooth"});
+    return;
+  }
+  _ss.idx=Math.max(0,Math.min(n-1,_ss.idx+dir));
+  renderSession();
+}
+document.getElementById("ssClose").onclick=closeSession;
+document.getElementById("ssPrev").onclick=()=>ssGo(-1);
+document.getElementById("ssNext").onclick=()=>ssGo(1);
+document.addEventListener("keydown",e=>{
+  if(!document.getElementById("session").classList.contains("show"))return;
+  if(e.key==="Escape")closeSession();
+  else if(e.key==="ArrowRight")ssGo(1);
+  else if(e.key==="ArrowLeft")ssGo(-1);
+});
+
 /* ===== BODY WEIGHT ===== */
 function getWeights(){if(!state.weights)state.weights=[];return state.weights}
 function todayISO(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
@@ -729,6 +886,7 @@ function buildTabs(){
     const wk=document.createElement("div");
     wk.className="workout"+(idx===activeTab?" show":"");
     wk.innerHTML=`<div class="wtitle"><h3>${w.day} — ${w.title}</h3><span class="focus">${w.focus}</span></div>
+      <button class="start-session" data-start="${w.id}">Почати тренування<small>гід веде по вправах · ${w.ex.length} вправ</small></button>
       <div class="exlist">${w.ex.map((e,i)=>`
         <div class="ex" data-ex>
           <div class="ex-head" data-head>
@@ -770,6 +928,7 @@ function buildTabs(){
     wraps.appendChild(wk);
   });
   bindTracker(wraps);
+  wraps.querySelectorAll("[data-start]").forEach(b=>b.onclick=()=>startSession(b.getAttribute("data-start")));
   wraps.querySelectorAll("[data-head]").forEach(h=>h.onclick=()=>h.closest("[data-ex]").classList.toggle("open"));
   wraps.querySelectorAll(".subtab").forEach(t=>t.onclick=(ev)=>{
     ev.stopPropagation();
@@ -791,6 +950,7 @@ function refreshStats(){
   let total=strength; SCHEDULE.forEach((s,i)=>{if(s.t==="cardio"&&done["cardio"+i])total++});
   document.getElementById("stDone").textContent=strength;
   document.getElementById("stPct").textContent=Math.round(total/5*100)+"%";
+  if(document.getElementById("wbDays"))buildWeekBalance();
 }
 
 /* ===== MACROS ===== */
@@ -843,6 +1003,66 @@ renderTimer();
 
 /* ===== EAT CALCULATOR ===== */
 const BASE=1600;
+const MAINTENANCE=2000, BURN_STRENGTH=250, BURN_CARDIO=230;
+const DOW_SHORT=["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
+function getEaten(){const d=getDone();if(!d.eaten)d.eaten={};return d.eaten}
+function dayBurn(i){
+  // calories burned that day from logged sessions
+  const done=getDone();const sc=SCHEDULE[i];let burn=0;
+  if(sc.t==="train"&&done[sc.p])burn+=BURN_STRENGTH;
+  if(sc.t==="cardio"&&done["cardio"+i])burn+=BURN_CARDIO;
+  return burn;
+}
+function buildWeekBalance(){
+  const wrap=document.getElementById("wbDays");if(!wrap)return;
+  const eaten=getEaten();const ti=todayIdx();
+  wrap.innerHTML=DOW_SHORT.map((nm,i)=>{
+    const burn=dayBurn(i);
+    const burnTag=burn?`<small class="${SCHEDULE[i].t==="train"?"s":""}">+${burn} спалено</small>`:"";
+    const val=eaten[i]!=null?eaten[i]:"";
+    let bal="";
+    if(eaten[i]!=null){
+      const b=eaten[i]-(MAINTENANCE+burn);
+      const cls=b<0?"def":b>0?"sur":"none";
+      bal=`<span class="wb-bal ${cls}">${b>0?"+":""}${b}</span>`;
+    }else bal=`<span class="wb-bal none">—</span>`;
+    return `<div class="wb-day${i===ti?" istoday":""}" data-day="${i}">
+      <div class="wb-name">${nm}${burnTag}</div>
+      <input type="number" inputmode="numeric" placeholder="з'їдено" value="${val}">
+      ${bal}
+    </div>`;
+  }).join("");
+  wrap.querySelectorAll(".wb-day").forEach(row=>{
+    const i=parseInt(row.getAttribute("data-day"));
+    const inp=row.querySelector("input");
+    inp.onchange=()=>{
+      const e=getEaten();const v=inp.value.trim();
+      if(v==="")delete e[i];else e[i]=Math.max(0,Math.round(parseFloat(v)||0));
+      save();buildWeekBalance();
+    };
+  });
+  // summary
+  let net=0,anyData=false;
+  for(let i=0;i<7;i++){if(eaten[i]!=null){net+=eaten[i]-(MAINTENANCE+dayBurn(i));anyData=true;}}
+  const totalEl=document.getElementById("wbTotal"),kgEl=document.getElementById("wbKg"),
+        kgCap=document.getElementById("wbKgCap"),note=document.getElementById("wbNote");
+  const cls=!anyData?"none":net<0?"def":net>0?"sur":"none";
+  totalEl.className="big "+cls;
+  totalEl.textContent=(net>0?"+":"")+net;
+  const kg=Math.round(net/7700*100)/100;
+  kgEl.className="big "+cls;
+  kgEl.textContent=(kg>0?"+":"")+kg.toFixed(2);
+  kgCap.textContent=net<0?"≈ втрата ваги, кг":net>0?"≈ приріст ваги, кг":"прогноз ваги";
+  if(!anyData){
+    note.innerHTML="Введи з'їдені калорії хоча б за один день, щоб побачити баланс. <b>Від'ємний баланс = дефіцит = схуднення.</b>";
+  }else if(net<0){
+    note.innerHTML=`Ти в <b>дефіциті ${Math.abs(net)} ккал</b> за тиждень — це орієнтовно <b>${Math.abs(kg).toFixed(2)} кг</b> жиру. Так і тримай: важливий саме тижневий підсумок, а не кожен окремий день.`;
+  }else if(net>0){
+    note.innerHTML=`Поки <b>профіцит ${net} ккал</b> — для схуднення баланс має бути від'ємним. Спробуй трохи зменшити порції або додати кардіо.`;
+  }else{
+    note.innerHTML="Баланс рівно нуль — вага триматиметься. Для схуднення потрібен невеликий дефіцит.";
+  }
+}
 function updateEat(){
   let total=BASE,s=document.getElementById("tglStrength").classList.contains("on"),c=document.getElementById("tglCardio").classList.contains("on");
   document.getElementById("rowStrength").style.display=s?"flex":"none";
@@ -868,7 +1088,7 @@ document.getElementById("resetBtn").onclick=()=>{if(confirm("Скинути ве
 /* ===== INIT ===== */
 const ti=todayIdx();
 if(SCHEDULE[ti]&&SCHEDULE[ti].t==="train")activeTab=PLAN.findIndex(w=>w.id===SCHEDULE[ti].p);
-buildCal();buildTabs();refreshStats();buildMacros();buildWeight();
+buildCal();buildTabs();refreshStats();buildMacros();buildWeight();buildWeekBalance();
 document.getElementById("wtAdd").onclick=addWeight;
 document.getElementById("wtInput").addEventListener("keydown",e=>{if(e.key==="Enter")addWeight();});
 </script>
