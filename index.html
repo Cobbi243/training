@@ -296,6 +296,23 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;font-fam
 .mini-stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-align:center}
 .mini-stat .mnum{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;color:var(--ink)}
 .mini-stat .mlbl{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;font-family:'JetBrains Mono',monospace}
+.prog{margin-bottom:18px}
+.prog-h{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.prog-h::before{content:"";width:14px;height:2px;background:var(--muted)}
+.prog-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.prog-btn{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+.prog-btn:hover{border-color:var(--muted)}
+.prog-btn.easier:hover{border-color:var(--cardio)}
+.prog-btn.harder:hover{border-color:var(--acc)}
+.prog-btn .pb-tag{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px}
+.prog-btn.easier .pb-tag{color:var(--cardio)}
+.prog-btn.harder .pb-tag{color:var(--acc)}
+.prog-btn .pb-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.25}
+.prog-detail{margin-top:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--ink);line-height:1.5;display:none}
+.prog-detail.show{display:block;animation:fadeIn .2s}
+.prog-detail b{color:var(--acc-2)}
+.prog-detail .pd-close{float:right;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;margin-left:8px}
+.prog-detail .pd-close:hover{color:var(--acc)}
 </style>
 </head>
 <body>
@@ -601,6 +618,55 @@ const DOW=["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
 // Пн=A, Вт=кардіо, Ср=B, Чт=кардіо, Пт=C, Сб/Нд відпочинок
 const SCHEDULE=[{t:"train",p:"A"},{t:"cardio"},{t:"train",p:"B"},{t:"cardio"},{t:"train",p:"C"},{t:"rest"},{t:"rest"}];
 
+/* ===== EXERCISE PROGRESSIONS ===== */
+const PROG={
+  chest_press:{e:{n:"Жим з підлоги",d:"Роби лежачи на підлозі — амплітуда коротша, лікті впираються в підлогу й знімають частину навантаження. Добре для початку."},h:{n:"Жим з паузою",d:"Затримуйся на <b>2 секунди</b> внизу біля грудей перед кожним вижиманням. Прибирає інерцію, м'язи працюють важче на тій самій вазі."}},
+  chest_fly:{e:{n:"Розводка з більшим згином",d:"Сильніше зігни лікті (майже як жим) — важіль коротший, навантаження менше. Зменш вагу на 2–3 кг."},h:{n:"Розводка з паузою внизу",d:"У нижній точці, де груди розтягнуті, затримайся на <b>2 сек</b>. Максимум напруги в найскладнішому положенні."}},
+  sh_press:{e:{n:"Жим сидячи",d:"Сядь з опорою для спини — корпус стабільний, не треба балансувати, вся робота на плечі. Безпечніше для попереку."},h:{n:"Жим Арнольда",d:"Починай долонями до себе й розвертай кисті назовні під час вижимання. Більша амплітуда й включення всіх пучків дельт."}},
+  sh_lat:{e:{n:"Махи з зігнутими ліктями",d:"Сильно зігни лікті — гантелі ближче до тіла, важіль коротший, легше підняти. Бери меншу вагу."},h:{n:"Махи з паузою вгорі",d:"Утримуй гантелі <b>1–2 сек</b> у верхній точці (на рівні плечей). Дельти горять навіть з легкою вагою."}},
+  tri_ext:{e:{n:"Розгинання однією рукою",d:"Працюй по черзі однією рукою з легшою гантеллю — легше контролювати техніку й лікоть."},h:{n:"Розгинання з паузою",d:"Внизу, де трицепс розтягнутий за головою, затримайся на <b>2 сек</b>. Більше часу під навантаженням."}},
+  squat:{e:{n:"Присід до стільця",d:"Присідай до торкання сидіння стільця позаду — обмежує глибину, легше контролювати й безпечніше для колін."},h:{n:"Присід з паузою внизу",d:"У найнижчій точці затримайся на <b>2–3 сек</b>, тримаючи напругу. Прибирає відскок, ноги працюють важче."}},
+  lunge:{e:{n:"Випади на місці",d:"Не крокуй — став ноги в позицію випаду й опускайся вниз-вгору на місці. Менше балансу, простіше для координації."},h:{n:"Випади в ходьбі",d:"Крокуй вперед по черзі (ходячі випади). Більше балансу, стабілізаторів і навантаження."}},
+  rdl:{e:{n:"Тяга з вищої точки",d:"Опускай гантелі лише до колін, не нижче. Коротша амплітуда береже поперек, поки відчуваєш техніку."},h:{n:"Тяга на одній нозі",d:"Виконуй по черзі на одній нозі (друга позаду на вазі). Потужно вмикає сідницю й баланс."}},
+  bulgarian:{e:{n:"Спліт-присід без підставки",d:"Постав задню ногу на підлогу, а не на підвищення. Менше навантаження й розтяжки, легше тримати баланс."},h:{n:"З паузою внизу",d:"У нижній точці затримайся на <b>2 сек</b>. Передня нога й сідниця під максимальною напругою."}},
+  calf:{e:{n:"На двох ногах без підйому",d:"Роби на рівній підлозі без підвищення — менша амплітуда, простіше. Можна без гантелей спершу."},h:{n:"На одній нозі",d:"Стій на одній нозі на краю сходинки. Подвоює навантаження на литку й додає баланс."}},
+  row:{e:{n:"Тяга з опорою на лаву",d:"Обіприся рукою й коліном на лаву/стілець — спина стабільна, легше для попереку, чистіша техніка."},h:{n:"Тяга з паузою вгорі",d:"Вгорі, де лопатка зведена, затримайся на <b>1–2 сек</b>. Більше роботи для спини на тій самій вазі."}},
+  pullover:{e:{n:"Пуловер з меншою амплітудою",d:"Опускай гантель лише до рівня голови, не далі за неї. Менше розтяжки — береже плечі поки звикаєш."},h:{n:"Пуловер з паузою",d:"У нижній точці, де груди й спина розтягнуті, затримайся на <b>2 сек</b>. Максимум розтягнення під навантаженням."}},
+  renegade:{e:{n:"Тяга в планці з колін",d:"Опусти коліна на підлогу — менше навантаження на кор, легше тримати корпус без обертання."},h:{n:"З віджиманням",d:"Додай віджимання між тягами кожною рукою. Перетворює вправу на потужний комплекс на все тіло."}},
+  bicep:{e:{n:"Згинання по черзі",d:"Піднімай руки по черзі — можеш сконцентруватись на кожній і взяти трохи легшу вагу спочатку."},h:{n:"Згинання з паузою",d:"Вгорі, де біцепс максимально скорочений, стисни й затримай на <b>1–2 сек</b>. Сильніший пік скорочення."}},
+  crunch:{e:{n:"Скручування без гантелі",d:"Прибери гантель, руки на грудях. Менша вага корпусу — простіше підняти, добре для початку."},h:{n:"Скручування з затримкою",d:"У верхній точці, де прес стиснутий, затримайся на <b>2 сек</b>. Прес під напругою довше — горить сильніше."}}
+};
+function progHTML(imgKey){
+  const pr=PROG[imgKey];if(!pr)return "";
+  return `<div class="prog" data-prog-img="${imgKey}">
+    <div class="prog-h">Підлаштувати рівень</div>
+    <div class="prog-row">
+      <button class="prog-btn easier" data-prog="e"><span class="pb-tag">↓ легше</span><span class="pb-name">${pr.e.n}</span></button>
+      <button class="prog-btn harder" data-prog="h"><span class="pb-tag">↑ складніше</span><span class="pb-name">${pr.h.n}</span></button>
+    </div>
+    <div class="prog-detail" data-prog-detail></div>
+  </div>`;
+}
+function bindProg(root){
+  root.querySelectorAll(".prog").forEach(box=>{
+    const imgKey=box.getAttribute("data-prog-img"),pr=PROG[imgKey];
+    if(!pr)return;
+    const detail=box.querySelector("[data-prog-detail]");
+    box.querySelectorAll("[data-prog]").forEach(btn=>{
+      btn.onclick=(e)=>{
+        e.stopPropagation();
+        const which=btn.getAttribute("data-prog"),v=which==="e"?pr.e:pr.h;
+        const tag=which==="e"?'<b>Легший варіант:</b>':'<b>Складніший варіант:</b>';
+        if(detail.classList.contains("show")&&detail._which===which){detail.classList.remove("show");return;}
+        detail._which=which;
+        detail.innerHTML=`<span class="pd-close" data-pd-close>✕</span>${tag} ${v.n}. ${v.d}`;
+        detail.classList.add("show");
+        detail.querySelector("[data-pd-close]").onclick=(ev)=>{ev.stopPropagation();detail.classList.remove("show");};
+      };
+    });
+  });
+}
+
 const MACROS=[
   {name:"Білки",val:"140 г",pct:80,col:"#c6ff00"},
   {name:"Жири",val:"50 г",pct:40,col:"#ff5722"},
@@ -758,8 +824,10 @@ function renderSession(){
     <div class="ss-steps">
       <div class="ss-h">Техніка</div>
       <ol>${e.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
-    </div>`;
+    </div>
+    ${progHTML(e.img)}`;
   bindTracker(body);
+  bindProg(body);
   // nav buttons
   const prev=document.getElementById("ssPrev"),next=document.getElementById("ssNext");
   prev.disabled=i===0;
@@ -935,6 +1003,7 @@ function buildTabs(){
               <ol class="steps">${e.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
               <h4>Роби так</h4><div class="tips">${e.good.map(g=>`<div class="tip">${g}</div>`).join("")}</div>
               <h4>Уникай</h4><div class="tips">${e.bad.map(b=>`<div class="tip bad">${b}</div>`).join("")}</div>
+              ${progHTML(e.img)}
             </div>
             <div class="subpane" data-pane="mus">
               <div class="mus-card"><img src="${PICS[e.img].mus}" alt="задіяні м'язи"></div>
@@ -946,6 +1015,7 @@ function buildTabs(){
             <ol class="steps">${e.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
             <h4>Роби так</h4><div class="tips">${e.good.map(g=>`<div class="tip">${g}</div>`).join("")}</div>
             <h4>Уникай</h4><div class="tips">${e.bad.map(b=>`<div class="tip bad">${b}</div>`).join("")}</div>
+            ${progHTML(e.img)}
             `}
           </div></div>
         </div>`).join("")}</div>
@@ -953,6 +1023,7 @@ function buildTabs(){
     wraps.appendChild(wk);
   });
   bindTracker(wraps);
+  bindProg(wraps);
   wraps.querySelectorAll("[data-start]").forEach(b=>b.onclick=()=>startSession(b.getAttribute("data-start")));
   wraps.querySelectorAll("[data-head]").forEach(h=>h.onclick=()=>h.closest("[data-ex]").classList.toggle("open"));
   wraps.querySelectorAll(".subtab").forEach(t=>t.onclick=(ev)=>{
