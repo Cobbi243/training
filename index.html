@@ -313,9 +313,63 @@ footer{text-align:center;padding:24px;color:var(--muted);font-size:12px;font-fam
 .prog-detail b{color:var(--acc-2)}
 .prog-detail .pd-close{float:right;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;margin-left:8px}
 .prog-detail .pd-close:hover{color:var(--acc)}
+.view-banner{position:fixed;left:0;right:0;bottom:calc(64px + env(safe-area-inset-bottom));z-index:150;display:none;justify-content:center;pointer-events:none}
+.view-banner.show{display:flex}
+.view-banner .vb-inner{background:var(--panel-2);border:1px solid var(--line);border-radius:30px;padding:9px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:auto;max-width:92%}
+.view-banner .vb-txt{font-size:12.5px;color:var(--muted)}
+.view-banner .vb-txt b{color:var(--ink)}
+.view-banner .vb-btn{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.5px;text-transform:uppercase;background:var(--acc);border:none;border-radius:20px;padding:7px 14px;color:#fff;cursor:pointer;white-space:nowrap}
+.view-banner .vb-btn:hover{filter:brightness(1.08)}
+.lock-fab{position:fixed;top:14px;right:14px;z-index:160;width:42px;height:42px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.lock-fab:hover{color:var(--ink);border-color:var(--muted)}
+.lock-fab.unlocked{color:var(--acc-2);border-color:var(--acc-2)}
+.sync-dot{position:fixed;top:20px;right:64px;z-index:160;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px;opacity:0;transition:opacity .3s}
+.sync-dot.show{opacity:.8}
+.sync-dot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--acc-2)}
+.sync-dot.saving::before{background:var(--acc);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+body.viewonly .start-session,body.viewonly #resetBtn{display:none !important}
+body.viewonly .set-check,body.viewonly .trk-clear,body.viewonly .wt-input button,body.viewonly .wdel,body.viewonly #wtAdd{pointer-events:none;opacity:.4}
+body.viewonly .set-row input,body.viewonly .wt-input input,body.viewonly .wb-day input{pointer-events:none;opacity:.55}
+body.viewonly .day{pointer-events:none}
+body.viewonly .prog-btn{pointer-events:auto}
+.code-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.code-modal.show{display:flex}
+.code-box{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;max-width:340px;width:100%;text-align:center}
+.code-box h3{font-size:18px;margin-bottom:6px}
+.code-box p{font-size:12.5px;color:var(--muted);margin-bottom:16px}
+.code-box input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--ink);font-size:16px;padding:12px;text-align:center;margin-bottom:12px}
+.code-box input:focus{outline:none;border-color:var(--acc-2)}
+.code-box .cb-row{display:flex;gap:8px}
+.code-box button{flex:1;border-radius:10px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1px solid var(--line)}
+.code-box .cb-ok{background:var(--acc);border-color:var(--acc);color:#fff}
+.code-box .cb-cancel{background:var(--panel-2);color:var(--muted)}
+.code-box .cb-err{color:var(--acc);font-size:12px;min-height:16px;margin-bottom:8px}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
+<button class="lock-fab" id="lockFab" title="Режим редагування">🔒</button>
+<div class="sync-dot" id="syncDot">синхр.</div>
+<div class="view-banner" id="viewBanner">
+  <div class="vb-inner">
+    <span class="vb-txt">Режим <b>перегляду</b> — це чужий прогрес</span>
+    <button class="vb-btn" id="bannerEdit">Це я</button>
+  </div>
+</div>
+<div class="code-modal" id="codeModal">
+  <div class="code-box">
+    <h3>Режим редагування</h3>
+    <p>Введи код, щоб редагувати прогрес. Гості бачать дані лише для перегляду.</p>
+    <div class="cb-err" id="codeErr"></div>
+    <input type="password" id="codeInput" placeholder="код" autocomplete="off">
+    <div class="cb-row">
+      <button class="cb-cancel" id="codeCancel">Скасувати</button>
+      <button class="cb-ok" id="codeOk">Увійти</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="wrap">
@@ -674,11 +728,96 @@ const MACROS=[
 ];
 
 /* ===== STATE ===== */
-let state=load();
+/* ===== FIREBASE CLOUD SYNC ===== */
+const firebaseConfig={
+  apiKey:"AIzaSyAsa2gGphCQQlhnmK5fa8i6mU-RHT3DhVw",
+  authDomain:"forge-5edb5.firebaseapp.com",
+  databaseURL:"https://forge-5edb5-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"forge-5edb5",
+  storageBucket:"forge-5edb5.firebasestorage.app",
+  messagingSenderId:"880476069545",
+  appId:"1:880476069545:web:5da2c31d44140fd56253b8"
+};
+const EDIT_CODE="forge2026"; // секретний код для режиму редагування
+let fbRef=null, fbReady=false, _applyingRemote=false, _saveTimer=null;
+function initFirebase(){
+  try{
+    firebase.initializeApp(firebaseConfig);
+    fbRef=firebase.database().ref("forge/progress");
+    fbReady=true;
+    // live subscription: коли дані змінюються в хмарі (інший пристрій) — підтягнути
+    fbRef.on("value",snap=>{
+      const val=snap.val();
+      if(!val)return;
+      // не перезаписувати власні щойно збережені зміни зайвий раз
+      _applyingRemote=true;
+      state=val;
+      try{localStorage.setItem("forge",JSON.stringify(state))}catch(e){}
+      rebuildAll();
+      _applyingRemote=false;
+    },err=>{console.warn("Firebase read error",err);});
+  }catch(e){console.warn("Firebase init failed, working locally",e);fbReady=false;}
+}
 function load(){try{return JSON.parse(localStorage.getItem("forge")||"{}")}catch(e){return{}}}
-function save(){try{localStorage.setItem("forge",JSON.stringify(state))}catch(e){}}
+let state=load();
+let editMode=false;
+function save(){
+  // local first (миттєво й офлайн-безпечно)
+  try{localStorage.setItem("forge",JSON.stringify(state))}catch(e){}
+  // cloud (тільки в режимі редагування й не під час застосування віддалених змін)
+  if(fbReady&&editMode&&!_applyingRemote){
+    clearTimeout(_saveTimer);
+    _saveTimer=setTimeout(()=>{fbRef.set(state).then(flashSync).catch(e=>console.warn("cloud save failed",e));},400);
+  }
+}
+function rebuildAll(){
+  // повний перемалюй UI з поточного state
+  if(typeof buildCal==="function")buildCal();
+  if(typeof buildTabs==="function")buildTabs();
+  if(typeof refreshStats==="function")refreshStats();
+  if(typeof buildWeight==="function")buildWeight();
+  if(typeof buildWeekBalance==="function")buildWeekBalance();
+  applyEditMode();
+}
 function weekKey(){const d=new Date();const o=new Date(d.getFullYear(),0,1);const wk=Math.ceil((((d-o)/86400000)+o.getDay()+1)/7);return d.getFullYear()+"-w"+wk}
 function getDone(){const k=weekKey();if(!state[k])state[k]={};return state[k]}
+
+/* ===== EDIT / VIEW MODE ===== */
+function applyEditMode(){
+  document.body.classList.toggle("viewonly",!editMode);
+  const lock=document.getElementById("lockFab");
+  if(lock){lock.textContent=editMode?"🔓":"🔒";lock.classList.toggle("unlocked",editMode);}
+  const banner=document.getElementById("viewBanner");
+  if(banner)banner.classList.toggle("show",!editMode);
+}
+function enterEditMode(){
+  editMode=true;
+  try{sessionStorage.setItem("forge_edit","1")}catch(e){}
+  applyEditMode();
+  closeCodeModal();
+  // одразу заллємо поточний стан у хмару (раптом локально щось є)
+  if(fbReady)fbRef.set(state).catch(()=>{});
+  flashSync();
+}
+function exitEditMode(){
+  editMode=false;
+  try{sessionStorage.removeItem("forge_edit")}catch(e){}
+  applyEditMode();
+}
+function openCodeModal(){document.getElementById("codeErr").textContent="";document.getElementById("codeInput").value="";document.getElementById("codeModal").classList.add("show");setTimeout(()=>document.getElementById("codeInput").focus(),50);}
+function closeCodeModal(){document.getElementById("codeModal").classList.remove("show");}
+function trySubmitCode(){
+  const v=document.getElementById("codeInput").value.trim();
+  if(v===EDIT_CODE)enterEditMode();
+  else document.getElementById("codeErr").textContent="Невірний код";
+}
+function flashSync(){
+  const d=document.getElementById("syncDot");if(!d)return;
+  d.classList.add("show","saving");
+  clearTimeout(d._t1);clearTimeout(d._t2);
+  d._t1=setTimeout(()=>d.classList.remove("saving"),700);
+  d._t2=setTimeout(()=>d.classList.remove("show"),2000);
+}
 
 /* ===== SET TRACKER ===== */
 function getSets(){const k=weekKey();if(!state[k])state[k]={};if(!state[k].sets)state[k].sets={};return state[k].sets}
@@ -1243,6 +1382,18 @@ if(SCHEDULE[ti]&&SCHEDULE[ti].t==="train")activeTab=PLAN.findIndex(w=>w.id===SCH
 buildCal();buildTabs();refreshStats();buildMacros();buildWeight();buildWeekBalance();
 document.getElementById("wtAdd").onclick=addWeight;
 document.getElementById("wtInput").addEventListener("keydown",e=>{if(e.key==="Enter")addWeight();});
+
+// edit-mode handlers
+try{if(sessionStorage.getItem("forge_edit")==="1")editMode=true;}catch(e){}
+document.getElementById("lockFab").onclick=()=>{ if(editMode)exitEditMode(); else openCodeModal(); };
+document.getElementById("bannerEdit").onclick=openCodeModal;
+document.getElementById("codeOk").onclick=trySubmitCode;
+document.getElementById("codeCancel").onclick=closeCodeModal;
+document.getElementById("codeInput").addEventListener("keydown",e=>{if(e.key==="Enter")trySubmitCode();if(e.key==="Escape")closeCodeModal();});
+document.getElementById("codeModal").addEventListener("click",e=>{if(e.target.id==="codeModal")closeCodeModal();});
+applyEditMode();
+// connect to cloud (will pull shared data and keep it live)
+initFirebase();
 </script>
 </body>
 </html>
