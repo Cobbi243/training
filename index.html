@@ -485,7 +485,7 @@ body.viewonly .prog-btn{pointer-events:auto}
   <div class="wrap">
     <div class="eyebrow">харчування для схуднення</div>
     <h2>Скільки їсти</h2>
-    <p style="color:var(--muted);font-size:13.5px;margin-top:8px">Твоя норма підтримки — 2000 ккал. Для схуднення тримаємо дефіцит ~400 ккал, тобто базова ціль <b style="color:var(--acc-2)">1600 ккал/день</b>. Тренування спалюють калорії — тож у дні з навантаженням можеш з'їсти більше на стільки ж.</p>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:8px">Твоя норма підтримки — 2300 ккал. Для схуднення тримаємо дефіцит ~400 ккал, тобто базова ціль <b style="color:var(--acc-2)">1900 ккал/день</b>. Тренування спалюють калорії — тож у дні з навантаженням можеш з'їсти більше на стільки ж.</p>
 
     <div class="eyebrow" style="margin-top:24px">скільки спалюєш</div>
     <div class="burn">
@@ -501,16 +501,16 @@ body.viewonly .prog-btn{pointer-events:auto}
         <button class="tgl" id="tglCardio" data-burn="230">🏃 кардіо +230</button>
       </div>
       <div style="margin-top:16px">
-        <div class="eatrow"><span class="lbl">Базова ціль (дефіцит)</span><span class="v">1600</span></div>
+        <div class="eatrow"><span class="lbl">Базова ціль (дефіцит)</span><span class="v">1900</span></div>
         <div class="eatrow" id="rowStrength" style="display:none"><span class="lbl">+ силове тренування</span><span class="v plus">+250</span></div>
         <div class="eatrow" id="rowCardio" style="display:none"><span class="lbl">+ HIIT-кардіо</span><span class="v plus">+230</span></div>
-        <div class="eatrow total"><span class="lbl">Можна з'їсти</span><span class="v" id="eatTotal">1600</span></div>
+        <div class="eatrow total"><span class="lbl">Можна з'їсти</span><span class="v" id="eatTotal">1900</span></div>
       </div>
     </div>
 
     <div class="wkbal">
       <h3>Тижневий баланс калорій</h3>
-      <div class="wb-sub">Вводь з'їдене за день. Спалене на тренуваннях додається саме — відмічай тренування в розкладі. Норма підтримки 2000 ккал.</div>
+      <div class="wb-sub">Вводь з'їдене за день. Спалене на тренуваннях додається саме — відмічай тренування в розкладі. Норма підтримки 2300 ккал.</div>
       <div class="wb-days" id="wbDays"></div>
       <div class="wb-summary">
         <div class="wb-box"><div class="big none" id="wbTotal">0</div><div class="cap">тижневий баланс, ккал</div></div>
@@ -523,20 +523,20 @@ body.viewonly .prog-btn{pointer-events:auto}
     <div class="nutri">
       <div class="ncard train">
         <span class="day">день з тренуванням</span>
-        <div class="kcal">~1850</div>
+        <div class="kcal">~2150</div>
         <div style="font-size:13px;color:var(--ink)">ккал</div>
-        <div class="note">1600 базових + ~250 спалених. Їж більше навколо тренування — більше білка й вуглеводів для відновлення.</div>
+        <div class="note">1900 базових + ~250 спалених. Їж більше навколо тренування — більше білка й вуглеводів для відновлення.</div>
       </div>
       <div class="ncard rest">
         <span class="day">день відпочинку</span>
-        <div class="kcal">1600</div>
+        <div class="kcal">1900</div>
         <div style="font-size:13px;color:var(--ink)">ккал</div>
         <div class="note">Без навантаження — базова ціль. Тримай білок високим, трохи менше вуглеводів.</div>
       </div>
     </div>
     <div class="macros" id="macros"></div>
     <div class="infobox">
-      <b>Логіка проста:</b> щоб худнути, треба з'їдати менше, ніж витрачаєш. Базова ціль <b>1600 ккал</b> уже дає дефіцит ~400. Коли тренуєшся, ти витрачаєш ще більше — тому можеш додати спалене назад і все одно бути в дефіциті. Тобто <b>важко тренувався → можна поїсти більше</b>, і це нормально.
+      <b>Логіка проста:</b> щоб худнути, треба з'їдати менше, ніж витрачаєш. Базова ціль <b>1900 ккал</b> уже дає дефіцит ~400. Коли тренуєшся, ти витрачаєш ще більше — тому можеш додати спалене назад і все одно бути в дефіциті. Тобто <b>важко тренувався → можна поїсти більше</b>, і це нормально.
       <br><br>
       Головне для схуднення — <b>багато білка</b> (~140 г, зберігає м'язи) і <b>сумарний тижневий дефіцит</b>, а не ідеальна цифра щодня. Цифри спалених калорій приблизні — реальні залежать від ваги й інтенсивності.
       <br><br>
@@ -1293,8 +1293,8 @@ document.getElementById("tReset").onclick=()=>{
 renderTimer();
 
 /* ===== EAT CALCULATOR ===== */
-const BASE=1600;
-const MAINTENANCE=2000, BURN_STRENGTH=250, BURN_CARDIO=230;
+const BASE=1900;
+const MAINTENANCE=2300, BURN_STRENGTH=250, BURN_CARDIO=230;
 const DOW_SHORT=["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
 function getEaten(){const d=getDone();if(!d.eaten)d.eaten={};return d.eaten}
 function dayBurn(i){
