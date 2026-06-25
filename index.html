@@ -371,6 +371,14 @@ body.viewonly .prog-btn{pointer-events:auto}
 .diet-item.on .di-cal{color:var(--acc-2)}
 .diet-note{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
 .diet-note b{color:var(--acc-2)}
+.diet-item .di-controls{display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap}
+.diet-item .di-gbtn{background:var(--bg);border:1px solid var(--line);border-radius:7px;color:var(--ink);width:26px;height:26px;font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.diet-item .di-gbtn:hover{border-color:var(--acc-2);color:var(--acc-2)}
+.diet-item .di-gbtn.di-swap{width:auto;padding:0 9px;font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;text-transform:uppercase;color:var(--cardio)}
+.diet-item .di-gbtn.di-swap:hover{border-color:var(--cardio);color:var(--cardio)}
+.diet-item .di-grams{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink);min-width:48px;text-align:center}
+.diet-item .di-variant{color:var(--cardio);font-weight:600}
+body.viewonly .di-gbtn{pointer-events:none;opacity:.4}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -1426,42 +1434,62 @@ window.addEventListener("scroll",()=>{
 document.getElementById("resetBtn").onclick=()=>{if(confirm("Скинути весь прогрес цього тижня?")){delete state[weekKey()];save();buildCal();buildTabs();refreshStats()}};
 
 /* ===== DIET / RATION ===== */
-// БЖВ+клітковина на вказану порцію [калорії, білки, жири, вуглеводи, клітковина]
+// per100: [ккал, білки, жири, вуглеводи, клітковина] на 100 г.
+// unit:"g" — регулюється грамами; unit:"pc" — штучний (per100 = на 1 порцію), grams завжди 1.
 const DIET=[
   {cat:"Сніданок",items:[
-    {id:"eggs",n:"2 яйця",c:155,p:13,f:11,cb:1,fib:0},
-    {id:"chick_sm",n:"Курка копчено-варена 35 г",c:42,p:7,f:1,cb:0,fib:0},
-    {id:"cheese",n:"Сирок плавлений 35% 25 г",c:80,p:2,f:7,cb:1,fib:0},
-    {id:"tort",n:"Тортилья Dojo vegan",c:186,p:5,f:5,cb:30,fib:1.5},
-    {id:"actimel",n:"Actimel чорниця/малина 100 г",c:73,p:3,f:1.5,cb:11,fib:0.3},
-    {id:"oil_am",n:"Олія оливкова 5 г",c:45,p:0,f:5,cb:0,fib:0},
-    {id:"chia",n:"Чіа з лимоном 12 г",c:58,p:2,f:4,cb:5,fib:4}
+    {id:"eggs",n:"Яйця",unit:"pc",g:2,per:[78,6.3,5.3,0.4,0],pcLbl:"шт"},
+    {id:"chick_sm",n:"Курка копчено-варена",unit:"g",g:35,per100:[120,18,5,0,0]},
+    {id:"cheese",n:"Сирок плавлений 35%",unit:"g",g:25,per100:[320,9,28,4,0]},
+    {id:"tort",n:"Тортилья Dojo vegan",unit:"pc",g:1,per:[186,5,5,30,1.5],pcLbl:"шт"},
+    {id:"actimel",n:"Actimel чорниця/малина",unit:"g",g:100,per100:[73,3,1.5,11,0.3]},
+    {id:"oil_am",n:"Олія оливкова (ранок)",unit:"g",g:5,per100:[900,0,100,0,0]},
+    {id:"chia",n:"Чіа",unit:"g",g:12,per100:[486,17,31,42,34]}
   ]},
   {cat:"Обід",items:[
-    {id:"fillet",n:"Філе грудки 500 г (сире)",c:550,p:110,f:7,cb:0,fib:0},
-    {id:"rice",n:"Рис/гречка 200 г (сухий)",c:700,p:14,f:1,cb:156,fib:3},
-    {id:"oil_pm",n:"Олія оливкова 10 г",c:90,p:0,f:10,cb:0,fib:0}
+    {id:"fillet",n:"Філе грудки (сире)",unit:"g",g:500,per100:[110,22,1.4,0,0]},
+    {id:"garnish",n:"Гарнір",unit:"g",g:200,variants:[
+      {k:"rice",n:"Рис (сухий)",per100:[350,7,0.5,78,1.5]},
+      {k:"buck",n:"Гречка (суха)",per100:[340,12,3.4,72,10]},
+      {k:"pasta",n:"Спагеті (сухі)",per100:[360,12,1.5,72,3]},
+      {k:"potato",n:"Картопля (сира)",per100:[77,2,0.1,17,2.2]}
+    ]},
+    {id:"oil_pm",n:"Олія оливкова (обід)",unit:"g",g:10,per100:[900,0,100,0,0]}
   ]},
   {cat:"Перекус / овочі",items:[
-    {id:"almond",n:"Мигдаль смажений 15 г",c:90,p:3,f:8,cb:3,fib:1.8},
-    {id:"tomato",n:"Помідори 2-3 шт",c:45,p:2,f:0,cb:10,fib:4.5},
-    {id:"cuke",n:"Огірок",c:30,p:1,f:0,cb:5,fib:0.5}
+    {id:"almond",n:"Мигдаль смажений",unit:"g",g:15,per100:[600,21,53,22,12]},
+    {id:"tomato",n:"Помідори",unit:"g",g:240,per100:[18,0.9,0.2,3.9,1.2]},
+    {id:"cuke",n:"Огірок",unit:"g",g:200,per100:[15,0.7,0.1,3.6,0.5]}
   ]}
 ];
 function dietKey(){return "diet_"+todayISO();}
 function getDietToday(){
   const k=dietKey();
   if(!state[k]){
-    // дефолт: усе ввімкнено (типовий день)
-    const def={};DIET.forEach(g=>g.items.forEach(it=>def[it.id]=true));
+    const def={on:{},g:{},garnish:"rice"};
+    DIET.forEach(gr=>gr.items.forEach(it=>{def.on[it.id]=true;def.g[it.id]=it.g;}));
     state[k]=def;
   }
+  // міграція зі старого формату (булеві)
+  if(!state[k].on){const o={on:{},g:{},garnish:"rice"};DIET.forEach(gr=>gr.items.forEach(it=>{o.on[it.id]=state[k][it.id]!==false;o.g[it.id]=it.g;}));state[k]=o;}
   return state[k];
 }
 function dietGoal(){
-  // ціль: тренувальний день ~2150, інакше 1900
   const ti2=todayIdx();
   return (SCHEDULE[ti2]&&SCHEDULE[ti2].t==="train")?2150:1900;
+}
+// рахує [ккал,б,ж,в,кл] для продукту з урахуванням грамовки/варіанту
+function dietMacros(it,sel){
+  const grams=sel.g[it.id]!=null?sel.g[it.id]:it.g;
+  if(it.unit==="pc"){
+    return it.per.map(x=>x*grams); // grams тут = кількість штук
+  }
+  let base=it.per100;
+  if(it.variants){
+    const v=it.variants.find(v=>v.k===sel.garnish)||it.variants[0];
+    base=v.per100;
+  }
+  return base.map(x=>x*grams/100);
 }
 function buildDiet(){
   const list=document.getElementById("dietList");if(!list)return;
@@ -1470,34 +1498,70 @@ function buildDiet(){
   DIET.forEach(g=>{
     const cat=document.createElement("div");cat.className="diet-cat";cat.textContent=g.cat;list.appendChild(cat);
     g.items.forEach(it=>{
-      const on=!!sel[it.id];
+      const on=!!sel.on[it.id];
+      const m=dietMacros(it,sel);
+      const grams=sel.g[it.id]!=null?sel.g[it.id]:it.g;
       const el=document.createElement("div");
       el.className="diet-item"+(on?" on":"");
-      el.innerHTML=`<div class="di-check">${on?"✓":""}</div>
-        <div class="di-main"><div class="di-name">${it.n}</div>
-        <div class="di-macros">Б ${it.p} · Ж ${it.f} · В ${it.cb} · кл ${it.fib}</div></div>
-        <div class="di-cal">${it.c}</div>`;
-      el.onclick=()=>{sel[it.id]=!sel[it.id];save();buildDiet();};
+      // назва + (для гарніру) перемикач варіанту
+      let nameHTML=it.n;
+      if(it.variants){
+        const cur=it.variants.find(v=>v.k===sel.garnish)||it.variants[0];
+        nameHTML=`${it.n}: <span class="di-variant">${cur.n.replace(/ \(.*\)/,"")}</span>`;
+      }
+      // контрол грамовки
+      const unitLbl=it.unit==="pc"?(it.pcLbl||"шт"):"г";
+      const step=it.unit==="pc"?1:(it.id==="oil_am"||it.id==="oil_pm"||it.id==="chia"?5:(grams>=100?25:5));
+      el.innerHTML=`
+        <div class="di-check">${on?"✓":""}</div>
+        <div class="di-main">
+          <div class="di-name">${nameHTML}</div>
+          <div class="di-macros">${Math.round(m[0])} ккал · Б ${m[1].toFixed(m[1]<10?1:0)} · Ж ${m[2].toFixed(m[2]<10?1:0)} · В ${m[3].toFixed(m[3]<10?1:0)} · кл ${m[4].toFixed(1)}</div>
+          <div class="di-controls">
+            <button class="di-gbtn" data-act="minus">−</button>
+            <span class="di-grams">${grams} ${unitLbl}</span>
+            <button class="di-gbtn" data-act="plus">+</button>
+            ${it.variants?`<button class="di-gbtn di-swap" data-act="swap">⇄ змінити</button>`:""}
+          </div>
+        </div>
+        <div class="di-cal">${Math.round(m[0])}</div>`;
+      // кліки
+      el.querySelector(".di-check").onclick=(e)=>{e.stopPropagation();sel.on[it.id]=!sel.on[it.id];save();buildDiet();};
+      el.querySelector(".di-cal").onclick=(e)=>{e.stopPropagation();sel.on[it.id]=!sel.on[it.id];save();buildDiet();};
+      el.querySelector(".di-name").onclick=(e)=>{e.stopPropagation();sel.on[it.id]=!sel.on[it.id];save();buildDiet();};
+      el.querySelectorAll(".di-gbtn").forEach(btn=>btn.onclick=(e)=>{
+        e.stopPropagation();
+        const act=btn.getAttribute("data-act");
+        if(act==="swap"){
+          const ks=it.variants.map(v=>v.k);
+          const idx=ks.indexOf(sel.garnish);
+          sel.garnish=ks[(idx+1)%ks.length];
+        }else{
+          let cur=sel.g[it.id]!=null?sel.g[it.id]:it.g;
+          cur+=(act==="plus"?step:-step);
+          if(cur<0)cur=0;
+          sel.g[it.id]=cur;
+        }
+        save();buildDiet();
+      });
       list.appendChild(el);
     });
   });
   // суми
   let c=0,p=0,f=0,cb=0,fib=0;
-  DIET.forEach(g=>g.items.forEach(it=>{if(sel[it.id]){c+=it.c;p+=it.p;f+=it.f;cb+=it.cb;fib+=it.fib;}}));
+  DIET.forEach(g=>g.items.forEach(it=>{if(sel.on[it.id]){const m=dietMacros(it,sel);c+=m[0];p+=m[1];f+=m[2];cb+=m[3];fib+=m[4];}}));
   const sum=document.getElementById("dietSum");
   sum.innerHTML=`
     <div class="ds cal"><div class="dn">${Math.round(c)}</div><div class="dl">ккал</div></div>
     <div class="ds"><div class="dn">${Math.round(p)}</div><div class="dl">білки г</div></div>
     <div class="ds"><div class="dn">${Math.round(f)}</div><div class="dl">жири г</div></div>
     <div class="ds"><div class="dn">${Math.round(cb)}</div><div class="dl">вугл г</div></div>`;
-  // ціль
   const goal=dietGoal();
   const pct=Math.min(100,Math.round(c/goal*100));
   document.getElementById("dgVals").innerHTML=`<b>${Math.round(c)}</b> / ${goal}`;
   const fill=document.getElementById("dgFill");
   fill.style.width=pct+"%";
   fill.classList.toggle("over",c>goal);
-  // клітковина в підказці
   const note=document.querySelector("#diet .diet-note");
   if(note&&!note.dataset.base)note.dataset.base=note.innerHTML;
   if(note)note.innerHTML=note.dataset.base+`<br><br>Сьогодні клітковини: <b>${Math.round(fib)} г</b> ${fib<22?"— ще мало, додай овочів або гречку":"— гарно!"}`;
