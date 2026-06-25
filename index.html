@@ -332,6 +332,7 @@ body.viewonly .start-session,body.viewonly #resetBtn{display:none !important}
 body.viewonly .set-check,body.viewonly .trk-clear,body.viewonly .wt-input button,body.viewonly .wdel,body.viewonly #wtAdd{pointer-events:none;opacity:.4}
 body.viewonly .set-row input,body.viewonly .wt-input input,body.viewonly .wb-day input{pointer-events:none;opacity:.55}
 body.viewonly .day{pointer-events:none}
+body.viewonly .diet-item{pointer-events:none}
 body.viewonly .prog-btn{pointer-events:auto}
 .code-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
 .code-modal.show{display:flex}
@@ -345,6 +346,31 @@ body.viewonly .prog-btn{pointer-events:auto}
 .code-box .cb-ok{background:var(--acc);border-color:var(--acc);color:#fff}
 .code-box .cb-cancel{background:var(--panel-2);color:var(--muted)}
 .code-box .cb-err{color:var(--acc);font-size:12px;min-height:16px;margin-bottom:8px}
+.diet-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}
+.diet-sum .ds{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 8px;text-align:center}
+.diet-sum .ds .dn{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;color:var(--ink)}
+.diet-sum .ds.cal .dn{color:var(--acc)}
+.diet-sum .ds .dl{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;font-family:'JetBrains Mono',monospace}
+.diet-goal{background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin-bottom:18px;font-size:13px}
+.diet-goal .dg-bar{height:8px;border-radius:5px;background:var(--bg);overflow:hidden;margin-top:8px}
+.diet-goal .dg-fill{height:100%;background:var(--acc-2);border-radius:5px;transition:width .3s}
+.diet-goal .dg-fill.over{background:var(--acc)}
+.diet-goal .dg-txt{display:flex;justify-content:space-between;color:var(--muted)}
+.diet-goal .dg-txt b{color:var(--ink)}
+.diet-list{display:flex;flex-direction:column;gap:7px}
+.diet-cat{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--acc-2);margin:14px 0 4px}
+.diet-item{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px;cursor:pointer;transition:border-color .15s,background .15s}
+.diet-item:hover{border-color:var(--muted)}
+.diet-item.on{border-color:var(--acc-2);background:rgba(198,255,0,.06)}
+.diet-item .di-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--bg)}
+.diet-item.on .di-check{background:var(--acc-2);border-color:var(--acc-2)}
+.diet-item .di-main{flex:1;min-width:0}
+.diet-item .di-name{font-size:14px;color:var(--ink);line-height:1.2}
+.diet-item .di-macros{font-size:10.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.diet-item .di-cal{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--ink);flex-shrink:0}
+.diet-item.on .di-cal{color:var(--acc-2)}
+.diet-note{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.5;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+.diet-note b{color:var(--acc-2)}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -545,6 +571,27 @@ body.viewonly .prog-btn{pointer-events:auto}
   </div>
 </section>
 
+<section id="diet">
+  <div class="wrap">
+    <div class="eyebrow">мій раціон</div>
+    <h2>Раціон дня</h2>
+    <p style="color:var(--muted);font-size:13.5px;margin-top:8px">Відмічай, що з'їв сьогодні — рахую калорії та БЖВ. Усе вже додано з твого типового дня; тицяй, щоб увімкнути/вимкнути.</p>
+
+    <div class="diet-sum" id="dietSum"></div>
+
+    <div class="diet-goal" id="dietGoal">
+      <div class="dg-txt"><span>З'їдено / ціль</span><span id="dgVals"><b>0</b> / 1900</span></div>
+      <div class="dg-bar"><div class="dg-fill" id="dgFill" style="width:0%"></div></div>
+    </div>
+
+    <div class="diet-list" id="dietList"></div>
+
+    <div class="diet-note">
+      <b>Орієнтири для тебе:</b> білок ціль ~160–200 г (захищає м'язи), клітковина ~25–30 г, ціль калорій 1900 (день відпочинку) або ~2150 (тренування). Картоплю замість рису бери, коли треба менше калорій і більше об'єму.
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="wrap">
     FORGE · прогрес зберігається локально на цьому пристрої<br>
@@ -560,6 +607,7 @@ body.viewonly .prog-btn{pointer-events:auto}
   <a href="#cardio"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Кардіо</a>
   <a href="#weight"><svg viewBox="0 0 24 24"><path d="M12 4a4 4 0 014 4H8a4 4 0 014-4zM5 8h14l1.5 12a1 1 0 01-1 1.1H4.5a1 1 0 01-1-1.1L5 8z"/></svg>Вага</a>
   <a href="#food"><svg viewBox="0 0 24 24"><path d="M5 3v7m0 0a3 3 0 003 3v8M5 10a3 3 0 01-3-3V3m17 0c-1.5 0-3 1.5-3 4s1.5 3 3 3m0-7v18"/></svg>Їжа</a>
+  <a href="#diet"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3zM3 9h18M9 3v18"/></svg>Раціон</a>
 </nav>
 
 <div class="session" id="session">
@@ -777,6 +825,7 @@ function rebuildAll(){
   if(typeof refreshStats==="function")refreshStats();
   if(typeof buildWeight==="function")buildWeight();
   if(typeof buildWeekBalance==="function")buildWeekBalance();
+  if(typeof buildDiet==="function")buildDiet();
   applyEditMode();
 }
 function weekKey(){const d=new Date();const o=new Date(d.getFullYear(),0,1);const wk=Math.ceil((((d-o)/86400000)+o.getDay()+1)/7);return d.getFullYear()+"-w"+wk}
@@ -1376,10 +1425,88 @@ window.addEventListener("scroll",()=>{
 
 document.getElementById("resetBtn").onclick=()=>{if(confirm("Скинути весь прогрес цього тижня?")){delete state[weekKey()];save();buildCal();buildTabs();refreshStats()}};
 
+/* ===== DIET / RATION ===== */
+// БЖВ+клітковина на вказану порцію [калорії, білки, жири, вуглеводи, клітковина]
+const DIET=[
+  {cat:"Сніданок",items:[
+    {id:"eggs",n:"2 яйця",c:155,p:13,f:11,cb:1,fib:0},
+    {id:"chick_sm",n:"Курка копчено-варена 35 г",c:42,p:7,f:1,cb:0,fib:0},
+    {id:"cheese",n:"Сирок плавлений 35% 25 г",c:80,p:2,f:7,cb:1,fib:0},
+    {id:"tort",n:"Тортилья Dojo vegan",c:186,p:5,f:5,cb:30,fib:1.5},
+    {id:"actimel",n:"Actimel чорниця/малина 100 г",c:73,p:3,f:1.5,cb:11,fib:0.3},
+    {id:"oil_am",n:"Олія оливкова 5 г",c:45,p:0,f:5,cb:0,fib:0},
+    {id:"chia",n:"Чіа з лимоном 12 г",c:58,p:2,f:4,cb:5,fib:4}
+  ]},
+  {cat:"Обід",items:[
+    {id:"fillet",n:"Філе грудки 500 г (сире)",c:550,p:110,f:7,cb:0,fib:0},
+    {id:"rice",n:"Рис/гречка 200 г (сухий)",c:700,p:14,f:1,cb:156,fib:3},
+    {id:"oil_pm",n:"Олія оливкова 10 г",c:90,p:0,f:10,cb:0,fib:0}
+  ]},
+  {cat:"Перекус / овочі",items:[
+    {id:"almond",n:"Мигдаль смажений 15 г",c:90,p:3,f:8,cb:3,fib:1.8},
+    {id:"tomato",n:"Помідори 2-3 шт",c:45,p:2,f:0,cb:10,fib:4.5},
+    {id:"cuke",n:"Огірок",c:30,p:1,f:0,cb:5,fib:0.5}
+  ]}
+];
+function dietKey(){return "diet_"+todayISO();}
+function getDietToday(){
+  const k=dietKey();
+  if(!state[k]){
+    // дефолт: усе ввімкнено (типовий день)
+    const def={};DIET.forEach(g=>g.items.forEach(it=>def[it.id]=true));
+    state[k]=def;
+  }
+  return state[k];
+}
+function dietGoal(){
+  // ціль: тренувальний день ~2150, інакше 1900
+  const ti2=todayIdx();
+  return (SCHEDULE[ti2]&&SCHEDULE[ti2].t==="train")?2150:1900;
+}
+function buildDiet(){
+  const list=document.getElementById("dietList");if(!list)return;
+  const sel=getDietToday();
+  list.innerHTML="";
+  DIET.forEach(g=>{
+    const cat=document.createElement("div");cat.className="diet-cat";cat.textContent=g.cat;list.appendChild(cat);
+    g.items.forEach(it=>{
+      const on=!!sel[it.id];
+      const el=document.createElement("div");
+      el.className="diet-item"+(on?" on":"");
+      el.innerHTML=`<div class="di-check">${on?"✓":""}</div>
+        <div class="di-main"><div class="di-name">${it.n}</div>
+        <div class="di-macros">Б ${it.p} · Ж ${it.f} · В ${it.cb} · кл ${it.fib}</div></div>
+        <div class="di-cal">${it.c}</div>`;
+      el.onclick=()=>{sel[it.id]=!sel[it.id];save();buildDiet();};
+      list.appendChild(el);
+    });
+  });
+  // суми
+  let c=0,p=0,f=0,cb=0,fib=0;
+  DIET.forEach(g=>g.items.forEach(it=>{if(sel[it.id]){c+=it.c;p+=it.p;f+=it.f;cb+=it.cb;fib+=it.fib;}}));
+  const sum=document.getElementById("dietSum");
+  sum.innerHTML=`
+    <div class="ds cal"><div class="dn">${Math.round(c)}</div><div class="dl">ккал</div></div>
+    <div class="ds"><div class="dn">${Math.round(p)}</div><div class="dl">білки г</div></div>
+    <div class="ds"><div class="dn">${Math.round(f)}</div><div class="dl">жири г</div></div>
+    <div class="ds"><div class="dn">${Math.round(cb)}</div><div class="dl">вугл г</div></div>`;
+  // ціль
+  const goal=dietGoal();
+  const pct=Math.min(100,Math.round(c/goal*100));
+  document.getElementById("dgVals").innerHTML=`<b>${Math.round(c)}</b> / ${goal}`;
+  const fill=document.getElementById("dgFill");
+  fill.style.width=pct+"%";
+  fill.classList.toggle("over",c>goal);
+  // клітковина в підказці
+  const note=document.querySelector("#diet .diet-note");
+  if(note&&!note.dataset.base)note.dataset.base=note.innerHTML;
+  if(note)note.innerHTML=note.dataset.base+`<br><br>Сьогодні клітковини: <b>${Math.round(fib)} г</b> ${fib<22?"— ще мало, додай овочів або гречку":"— гарно!"}`;
+}
+
 /* ===== INIT ===== */
 const ti=todayIdx();
 if(SCHEDULE[ti]&&SCHEDULE[ti].t==="train")activeTab=PLAN.findIndex(w=>w.id===SCHEDULE[ti].p);
-buildCal();buildTabs();refreshStats();buildMacros();buildWeight();buildWeekBalance();
+buildCal();buildTabs();refreshStats();buildMacros();buildWeight();buildWeekBalance();buildDiet();
 document.getElementById("wtAdd").onclick=addWeight;
 document.getElementById("wtInput").addEventListener("keydown",e=>{if(e.key==="Enter")addWeight();});
 
