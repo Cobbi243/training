@@ -1440,14 +1440,21 @@ const DIET=[
   {cat:"Сніданок",items:[
     {id:"eggs",n:"Яйця",unit:"pc",g:2,per:[78,6.3,5.3,0.4,0],pcLbl:"шт"},
     {id:"chick_sm",n:"Курка копчено-варена",unit:"g",g:35,per100:[120,18,5,0,0]},
-    {id:"cheese",n:"Сирок плавлений 35%",unit:"g",g:25,per100:[320,9,28,4,0]},
+    {id:"cheese",n:"Сир",unit:"g",g:25,variants:[
+      {k:"melt",n:"Плавлений 35%",per100:[320,9,28,4,0]},
+      {k:"cheddar",n:"Чеддер пластинки",per100:[400,25,33,1,0]}
+    ]},
     {id:"tort",n:"Тортилья Dojo vegan",unit:"pc",g:1,per:[186,5,5,30,1.5],pcLbl:"шт"},
     {id:"actimel",n:"Actimel чорниця/малина",unit:"g",g:100,per100:[73,3,1.5,11,0.3]},
     {id:"oil_am",n:"Олія оливкова (ранок)",unit:"g",g:5,per100:[900,0,100,0,0]},
     {id:"chia",n:"Чіа",unit:"g",g:12,per100:[486,17,31,42,34]}
   ]},
   {cat:"Обід",items:[
-    {id:"fillet",n:"Філе грудки (сире)",unit:"g",g:500,per100:[110,22,1.4,0,0]},
+    {id:"fillet",n:"Білок",unit:"g",g:500,variants:[
+      {k:"chicken",n:"Філе грудки",per100:[110,22,1.4,0,0]},
+      {k:"hake",n:"Хек",per100:[85,17,1.8,0,0]},
+      {k:"redfish",n:"Червона риба",per100:[170,20,9.5,0,0]}
+    ]},
     {id:"garnish",n:"Гарнір",unit:"g",g:200,variants:[
       {k:"rice",n:"Рис (сухий)",per100:[350,7,0.5,78,1.5]},
       {k:"buck",n:"Гречка (суха)",per100:[340,12,3.4,72,10]},
@@ -1463,15 +1470,26 @@ const DIET=[
   ]}
 ];
 function dietKey(){return "diet_"+todayISO();}
+function defaultVariants(){
+  const v={};
+  DIET.forEach(gr=>gr.items.forEach(it=>{if(it.variants)v[it.id]=it.variants[0].k;}));
+  return v;
+}
 function getDietToday(){
   const k=dietKey();
-  if(!state[k]){
-    const def={on:{},g:{},garnish:"rice"};
-    DIET.forEach(gr=>gr.items.forEach(it=>{def.on[it.id]=true;def.g[it.id]=it.g;}));
+  if(!state[k]||!state[k].on){
+    const def={on:{},g:{},variant:defaultVariants()};
+    DIET.forEach(gr=>gr.items.forEach(it=>{
+      def.on[it.id]=(state[k]&&state[k][it.id]!==undefined)?state[k][it.id]!==false:true;
+      def.g[it.id]=it.g;
+    }));
+    // перенести старий одиничний garnish, якщо був
+    if(state[k]&&state[k].garnish)def.variant.garnish=state[k].garnish;
     state[k]=def;
   }
-  // міграція зі старого формату (булеві)
-  if(!state[k].on){const o={on:{},g:{},garnish:"rice"};DIET.forEach(gr=>gr.items.forEach(it=>{o.on[it.id]=state[k][it.id]!==false;o.g[it.id]=it.g;}));state[k]=o;}
+  if(!state[k].variant)state[k].variant=defaultVariants();
+  // підстрахуй варіанти, яких бракує
+  DIET.forEach(gr=>gr.items.forEach(it=>{if(it.variants&&!state[k].variant[it.id])state[k].variant[it.id]=it.variants[0].k;}));
   return state[k];
 }
 function dietGoal(){
@@ -1482,11 +1500,12 @@ function dietGoal(){
 function dietMacros(it,sel){
   const grams=sel.g[it.id]!=null?sel.g[it.id]:it.g;
   if(it.unit==="pc"){
-    return it.per.map(x=>x*grams); // grams тут = кількість штук
+    return it.per.map(x=>x*grams);
   }
   let base=it.per100;
   if(it.variants){
-    const v=it.variants.find(v=>v.k===sel.garnish)||it.variants[0];
+    const vk=sel.variant[it.id]||it.variants[0].k;
+    const v=it.variants.find(v=>v.k===vk)||it.variants[0];
     base=v.per100;
   }
   return base.map(x=>x*grams/100);
@@ -1506,8 +1525,9 @@ function buildDiet(){
       // назва + (для гарніру) перемикач варіанту
       let nameHTML=it.n;
       if(it.variants){
-        const cur=it.variants.find(v=>v.k===sel.garnish)||it.variants[0];
-        nameHTML=`${it.n}: <span class="di-variant">${cur.n.replace(/ \(.*\)/,"")}</span>`;
+        const vk=sel.variant[it.id]||it.variants[0].k;
+        const cur=it.variants.find(v=>v.k===vk)||it.variants[0];
+        nameHTML=`${it.n}: <span class="di-variant">${cur.n}</span>`;
       }
       // контрол грамовки
       const unitLbl=it.unit==="pc"?(it.pcLbl||"шт"):"г";
@@ -1534,8 +1554,9 @@ function buildDiet(){
         const act=btn.getAttribute("data-act");
         if(act==="swap"){
           const ks=it.variants.map(v=>v.k);
-          const idx=ks.indexOf(sel.garnish);
-          sel.garnish=ks[(idx+1)%ks.length];
+          const cur=sel.variant[it.id]||ks[0];
+          const idx=ks.indexOf(cur);
+          sel.variant[it.id]=ks[(idx+1)%ks.length];
         }else{
           let cur=sel.g[it.id]!=null?sel.g[it.id]:it.g;
           cur+=(act==="plus"?step:-step);
